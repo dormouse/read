@@ -134,6 +134,16 @@ def download(url):
 
 
 def make(content):
+    # download html
+    # download images
+    
+    # html
+    # css
+    # toc
+    # ncx
+    # opf
+    # cover
+
     html = content.decode('gb2312')
     return None
 
