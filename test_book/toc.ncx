@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE ncx PUBLIC "-//NISO//DTD ncx 2005-1//EN"
+ "http://www.daisy.org/z3986/2005/ncx-2005-1.dtd">
+<ncx xmlns="http://www.daisy.org/z3986/2005/ncx/" version="2005-1">
+ <head>
+ </head>
+        <docTitle>
+               <text>[图说]【喷嚏图卦20161113】这个青春文学角度刁钻的我有些不知所措</text>
+        </docTitle>
+	<navMap>
+		<navPoint id="ch1" playOrder="1">
+			<navLabel>
+				<text>
+					【1】八一表演队唐山坠机 中国首位歼-10女飞行员牺牲
+				</text>
+			</navLabel>
+			<content src="pttg20161113.html#ch1" />
+		</navPoint>
+		<navPoint id="ch2" playOrder="2">
+			<navLabel>
+				<text>
+					【2】欧盟对我国无缝钢管采取临时反倾销措施 商务部：希望严格遵守世贸规则
+				</text>
+			</navLabel>
+			<content src="pttg20161113.html#ch2" />
+		</navPoint>
+	</navMap>
+</ncx>
