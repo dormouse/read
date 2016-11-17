@@ -83,19 +83,56 @@ class MakeMobiPenti():
         # html body
         txts = soup.find_all(class_='oblog_text')[1]
         all_p = txts.find_all('p')
+        body_tags = self.make_content_clear_br(all_p)
+        body_tags = self.make_content_make_h2(body_tags)
 
-        body = []
         self.all_h2 = []
-        for p in all_p:
-            for content in p.contents:
-                result = self.make_content_sub(content)
-                if result:
-                    body.append(result)
-
-        # make up together
         template = self.load_template('index.html')
-        output_content = template % (self.title, "\n".join(body))
-        self.output(output_filename, output_content)
+        output_soup = BeautifulSoup(template)
+        output_soup.title = self.title
+        output_soup.body.contents = body_tags
+        self.output(output_filename, output_soup.prettify())
+
+    def make_content_clear_br(self, all_p):
+        """ clear tag br in all tag p
+        If tag br in tag p, then split tag p to multiple tag p by tag br.
+        """
+        p_list = []
+        br_tag = BeautifulSoup('', 'html.parser').new_tag('br')
+        for p in all_p:
+            split_p_list = []
+            if br_tag in p.contents:
+                for item in p.contents:
+                    if item.name == 'br':
+                        if split_p_list:
+                            new_p_tag = BeautifulSoup('', 'html.parser').new_tag('p')
+                            new_p_tag.contents = split_p_list
+                            p_list.append(new_p_tag)
+                            split_p_list = []
+                    else:
+                        split_p_list.append(item)
+                if split_p_list:
+                    new_p_tag = BeautifulSoup('', 'html.parser').new_tag('p')
+                    new_p_tag.contents = split_p_list
+                    p_list.append(new_p_tag)
+            else:
+                p_list.append(p)
+        return p_list
+
+    def make_content_make_h2(self, tags):
+        new_tags = []
+        for tag in tags:
+            h2_pattern = re.compile(r'【\d+】')
+            if h2_pattern.search(''.join(tag.strings)):
+                self.all_h2.append(''.join(tag.strings))
+                new_h2_tag = BeautifulSoup('', 'html.parser').new_tag('h2')
+                new_h2_tag.contents = tag.contents
+                new_h2_tag.id = "ch%d" % len(self.all_h2)
+                new_tags.append(new_h2_tag)
+            else:
+                new_tags.append(tag)
+        return new_tags
+
 
     def make_content_sub(self, content):
         # parse img
@@ -127,8 +164,6 @@ class MakeMobiPenti():
         return None
 
     def download_img(self, url):
-        # TEST
-        return None
 
         base_name = os.path.split(urlparse(url).path)[1]
         ext_name = os.path.splitext(base_name)[1]
@@ -187,7 +222,8 @@ class MakeMobiPenti():
 
 
 def test():
-    url = 'http://www.dapenti.com/blog/more.asp?name=xilei&id=116232'
+    # url = 'http://www.dapenti.com/blog/more.asp?name=xilei&id=116232'
+    url = 'http://127.0.0.1:8000'
     tea = MakeMobiPenti(url)
     tea.make_book()
 
