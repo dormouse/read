@@ -58,7 +58,7 @@ soup.body.contents = all_tags
 print(soup.prettify())
 
 class cleaner():
-    
+
     def dealp(tag):
         cons = tag.contents
         for con in cons:
