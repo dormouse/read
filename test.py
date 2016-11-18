@@ -66,4 +66,4 @@ class cleaner():
                 con = kill_br(con)
         return tag
 
-    def kill_br(tag):
+    def kill_br(tag)

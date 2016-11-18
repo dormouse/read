@@ -1,3 +1,6 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
 import logging
 import httplib2
 import json
@@ -14,6 +17,14 @@ class MakeMobiPenti():
     """ make mobi ebook of dapenti.com"""
 
     def __init__(self, url):
+        self.logger = logging.getLogger(__name__)
+        self.logger.setLevel(logging.DEBUG)
+        ch = logging.StreamHandler()
+        ch.setLevel(logging.DEBUG)
+        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        ch.setFormatter(formatter)
+        self.logger.addHandler(ch)
+
         self.url = url
         self.template_path = 'template'
         self.output_path = ''
@@ -27,7 +38,7 @@ class MakeMobiPenti():
         if content:
             # todo auto get content_code
             content_code = 'gb2312'
-            html = content.decode(content_code)
+            html = content.decode(content_code, 'ignore')
             self.make_content(html)
             self.make_style_css()
             self.make_toc_html()
@@ -46,6 +57,7 @@ class MakeMobiPenti():
             if success return webpage, else return None
         """
 
+        self.logger.info("Getting webpage:%s", url)
         h = httplib2.Http('.cache')
         response, content = h.request(url)
         if response.status == 200:
@@ -81,12 +93,13 @@ class MakeMobiPenti():
         # output html name
         output_filename = os.path.join(self.output_path, '%s.html' % self.name)
         # html body
+        self.all_h2 = []
         txts = soup.find_all(class_='oblog_text')[1]
         all_p = txts.find_all('p')
         body_tags = self.make_content_clear_br(all_p)
         body_tags = self.make_content_make_h2(body_tags)
+        body_tags = self.make_content_make_img(body_tags)
 
-        self.all_h2 = []
         template = self.load_template('index.html')
         output_soup = BeautifulSoup(template)
         output_soup.title = self.title
@@ -98,73 +111,59 @@ class MakeMobiPenti():
         If tag br in tag p, then split tag p to multiple tag p by tag br.
         """
         p_list = []
-        br_tag = BeautifulSoup('', 'html.parser').new_tag('br')
         for p in all_p:
-            split_p_list = []
-            if br_tag in p.contents:
-                for item in p.contents:
-                    if item.name == 'br':
-                        if split_p_list:
-                            new_p_tag = BeautifulSoup('', 'html.parser').new_tag('p')
-                            new_p_tag.contents = split_p_list
-                            p_list.append(new_p_tag)
-                            split_p_list = []
-                    else:
-                        split_p_list.append(item)
-                if split_p_list:
-                    new_p_tag = BeautifulSoup('', 'html.parser').new_tag('p')
-                    new_p_tag.contents = split_p_list
-                    p_list.append(new_p_tag)
-            else:
-                p_list.append(p)
+            p_tags = self.make_content_replace_br(p)
+            p_list += p_tags
         return p_list
+
+    def make_content_replace_br(self, tag_p):
+        """ replce all br in tag p
+        :keyword
+            tag_p: tag p
+        :return
+            a list make up of tag p
+        """
+
+        pattern = re.compile(r'</?br\s*/?>')
+        if tag_p.br:
+            old_html = tag_p.prettify()
+            new_html = pattern.sub("</p><p>", old_html)
+            new_soup = BeautifulSoup(new_html, 'html.parser')
+            value = new_soup.find_all('p')
+            return value
+        else:
+            return [tag_p]
 
     def make_content_make_h2(self, tags):
         new_tags = []
         for tag in tags:
             h2_pattern = re.compile(r'【\d+】')
             if h2_pattern.search(''.join(tag.strings)):
-                self.all_h2.append(''.join(tag.strings))
+                self.all_h2.append(''.join(tag.stripped_strings))
                 new_h2_tag = BeautifulSoup('', 'html.parser').new_tag('h2')
                 new_h2_tag.contents = tag.contents
-                new_h2_tag.id = "ch%d" % len(self.all_h2)
+                new_h2_tag['id'] = "ch%d" % len(self.all_h2)
                 new_tags.append(new_h2_tag)
             else:
                 new_tags.append(tag)
         return new_tags
 
 
-    def make_content_sub(self, content):
+    def make_content_make_img(self, tags):
         # parse img
-        if content.name == 'img':
-            img_url = self.download_img(content['src'])
-            if img_url:
-                content['src'] = img_url
-                result = "<p>%s</p>" % content.prettify().strip()
-                return result
-            else:
-                return None
-        # parse a
-        if content.name == 'a':
-            result = "<p>%s</p>" % content.prettify().strip()
-            return result
-
-        # parse h2
-        if content.string:
-            text = content.string.strip()
-            h2_pattern = re.compile(r'【\d+】')
-            if text:
-                if h2_pattern.search(text):
-                    self.all_h2.append(text)
-                    result = '<h2 id="ch%d">%s</h2>' % (len(self.all_h2), text)
-                else:
-                    result = "<p>%s</p>" % text
-                return result
-
-        return None
+        new_tags = []
+        for tag in tags:
+            for content in tag.contents:
+                if content.name == 'img':
+                    img_url = self.download_img(content['src'])
+                    if img_url:
+                        content['src'] = img_url
+            new_tags.append(tag)
+        return new_tags
 
     def download_img(self, url):
 
+        self.logger.info("Downloading image:%s", url)
         base_name = os.path.split(urlparse(url).path)[1]
         ext_name = os.path.splitext(base_name)[1]
         m = hashlib.md5()
@@ -223,7 +222,8 @@ class MakeMobiPenti():
 
 def test():
     # url = 'http://www.dapenti.com/blog/more.asp?name=xilei&id=116232'
-    url = 'http://127.0.0.1:8000'
+    url = 'http://www.dapenti.com/blog/more.asp?name=xilei&id=116327'
+    # url = 'http://127.0.0.1:8000'
     tea = MakeMobiPenti(url)
     tea.make_book()
 
