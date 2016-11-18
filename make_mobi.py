@@ -25,6 +25,8 @@ class MakeMobiPenti():
         ch.setFormatter(formatter)
         self.logger.addHandler(ch)
 
+        timeout = 20 #second
+        self.http = httplib2.Http('.cache', timeout=timeout)
         self.url = url
         self.template_path = 'template'
         self.output_path = ''
@@ -58,8 +60,7 @@ class MakeMobiPenti():
         """
 
         self.logger.info("Getting webpage:%s", url)
-        h = httplib2.Http('.cache')
-        response, content = h.request(url)
+        response, content = self.http.request(url)
         if response.status == 200:
             return content
         else:
@@ -162,17 +163,31 @@ class MakeMobiPenti():
         return new_tags
 
     def download_img(self, url):
+        """ download image
+        :keyword
+            url: the url of image
+        :return
+            if download success return the new url of image
+            else return None
+        """
 
         self.logger.info("Downloading image:%s", url)
         base_name = os.path.split(urlparse(url).path)[1]
         ext_name = os.path.splitext(base_name)[1]
         m = hashlib.md5()
         m.update(url.encode())
-        target_name = m.hexdigest() + ext_name
-        filename = os.path.join(self.output_img_path, target_name)
-        urlretrieve(url, filename)
-        new_url = os.path.join('img', target_name)
-        return new_url
+        target_base_name = m.hexdigest() + ext_name
+        target_filename = os.path.join(self.output_img_path, target_base_name)
+        try:
+            resp, content = self.http.request(url, "GET")
+            with open(target_filename, 'wb') as f:
+                f.write(content)
+            new_url = os.path.join('img', target_base_name)
+            return new_url
+        except Exception as e:
+            self.logger.error("Download image:%s fail", url)
+            self.logger.error(e)
+            return None
 
     def make_style_css(self):
         template = self.load_template('style.css')
