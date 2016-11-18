@@ -11,7 +11,7 @@ import subprocess
 from urllib.request import urlretrieve
 from urllib.parse import urlparse
 import hashlib
-
+import platform
 
 class MakeMobiPenti():
     """ make mobi ebook of dapenti.com"""
@@ -48,7 +48,21 @@ class MakeMobiPenti():
             self.make_opf()
             # start gen
             filename = os.path.join(os.getcwd(), self.name, '%s.opf' % self.name)
-            return_code = subprocess.call(['./kindlegen', filename])
+
+            def UsePlatform():
+                sysstr = platform.system()
+                if (sysstr == "Windows"):
+                    print("Call Windows tasks")
+                elif (sysstr == "Linux"):
+                    print("Call Linux tasks")
+                else:
+                    print("Other System tasks")
+            if platform.system() == 'Darwin':
+                # osx
+                return_code = subprocess.call(['./kindlegen_mac', filename])
+            else:
+                # todo linux?windows?
+                return_code = subprocess.call(['./kindlegen_linux', filename])
             print(return_code)
 
     def get_webpage(self, url):
@@ -178,11 +192,15 @@ class MakeMobiPenti():
         m.update(url.encode())
         target_base_name = m.hexdigest() + ext_name
         target_filename = os.path.join(self.output_img_path, target_base_name)
+        new_url = os.path.join('img', target_base_name)
+        # check image exists
+        if os.path.exists(target_filename):
+            return new_url
+        # download now
         try:
             resp, content = self.http.request(url, "GET")
             with open(target_filename, 'wb') as f:
                 f.write(content)
-            new_url = os.path.join('img', target_base_name)
             return new_url
         except Exception as e:
             self.logger.error("Download image:%s fail", url)
@@ -231,7 +249,7 @@ class MakeMobiPenti():
         """ book info, ie: ISBN, title, cover """
         template = self.load_template('index.opf')
         output_filename = os.path.join(self.output_path, '%s.opf' % self.name)
-        output_content = template % (self.title, self.name)
+        output_content = template % (self.title, self.name, self.name)
         self.output(output_filename, output_content)
 
 

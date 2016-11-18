@@ -10,7 +10,7 @@
         </dc-metadata>
     </metadata>
     <manifest>
-        <item id="content" media-type="text/x-oeb1-document" href="pttg20161113.html"></item>
+        <item id="content" media-type="text/x-oeb1-document" href="%s.html"></item>
         <item id="ncx" media-type="application/x-dtbncx+xml" href="toc.ncx"/>
     </manifest>
     <spine toc="ncx">
