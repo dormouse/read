@@ -4,9 +4,9 @@
     <head>
     </head>
     <docTitle>
-        <text>%s</text>
+        <text>{{ title }}</text>
     </docTitle>
     <navMap>
-        %s
+        {{ navpoints }}
     </navMap>
 </ncx>
