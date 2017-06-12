@@ -99,3 +99,4 @@ database/test/test.sqlite
 pyqt_win/conf.json
 pyqt_win/config.ini
 /database/rss_back.sqlite
+pyqt_win/cache/
