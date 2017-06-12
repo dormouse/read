@@ -134,7 +134,6 @@ class TreeMenu(QTreeView):
 
     def current_item(self):
         index = self.currentIndex()
-        self.log.debug(index.row())
         if index.isValid():
             self.log.debug("index is valid")
             item = index.internalPointer()

@@ -85,8 +85,12 @@ class TreeItem(object):
     def append_child(self, item):
         self.childItems.append(item)
 
-    def removeChild(self, index):
-        self.childItems.pop(index)
+    def removeChildren(self, start, count):
+        if start < 0 or start + count > len(self.childItems):
+            return False
+        for i in range(count):
+            self.childItems.pop(start)
+        return True
 
     def child(self, row):
         return self.childItems[row]
@@ -202,13 +206,31 @@ class TreeModel(QAbstractItemModel):
                 return item
         return self.rootItem
 
-    def removeRows(self, row, count, parent):
-        parentItem = self.index_to_item(parent)
-        self.beginRemoveRows(parent, row, row + count - 1)
-        for i in range(count):
-            parentItem.removeChild(row)
+    def removeRows(self, start, count, parent=QModelIndex()):
+        parent_item = self.index_to_item(parent)
+        self.beginRemoveRows(parent, start, start + count - 1)
+        success = parent_item.removeChildren(start, count)
         self.endRemoveRows()
-        return True
+        return success
+
+    def delete_item(self, index):
+        item = index.internalPointer()
+        if item:
+            item_type = item.type
+            item_data = item.user_data
+        else:
+            return
+
+        # delete database data
+        if item_type == 'feed':
+            self.query.delete_feed(item_data)
+        if item_type == 'folder':
+            self.query.delete_folder(item_data)
+        self.query.save()
+
+        # remove model item
+        self.removeRow(index.row(), index.parent())
+        self.update_unread_count()
 
     def init_model_data(self):
         self.beginResetModel()

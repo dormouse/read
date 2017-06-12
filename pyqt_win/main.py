@@ -181,14 +181,16 @@ class MainWindow(QMainWindow):
         """
         delete current tree menu item, item type must be 'feed' or 'folder'
         :return: None
-
-        rowsAboutToBeRemoved(const QModelIndex & parent, int start, int end)
-
         """
-        item = self.tree_menu.current_item()
-        item_type = item.type
-        item_data = item.user_data
-        item_text = item.text
+        view = self.tree_menu
+        model = view.model()
+        index = view.currentIndex()
+        if index.isValid():
+            item = index.internalPointer()
+            item_type = item.type
+            item_text = item.text
+        else:
+            return
 
         if item_type not in ['feed', 'folder']:
             return
@@ -197,47 +199,7 @@ class MainWindow(QMainWindow):
         reply = QMessageBox.question(
             self, "Confirm", msg, QMessageBox.Yes | QMessageBox.No)
         if reply == QMessageBox.Yes:
-            """
-            # which item should be current item after delete
-            parent_item = item.parent()
-            if parent_item.child_count() == 1:
-                parent_id = 0
-                child_id = parent_item.row()
-            else:
-                parent_id = item.parent().row()
-                if item.row() + 1 == item.parent().child_count():
-                    # last child
-                    child_id = item.row() - 1
-                else:
-                    child_id = item.row()
-            """
-
-            # deal database data
-            if item_type == 'feed':
-                self.query.delete_feed(item_data)
-            if item_type == 'folder':
-                self.query.delete_folder(item_data)
-            self.query.save()
-
-            # reload tree menu
-            view = self.tree_menu
-            model = view.model()
-            curr_index = view.currentIndex()
-            model.removeRow(curr_index.row(), curr_index.parent())
-            model.update_unread_count()
-
-            """
-            self.tree_menu.load_from_database()
-            model = self.tree_menu.model()
-            if parent_id == 0:
-                # top item
-                parent_index = QModelIndex()
-            else:
-                parent_index = model.index(parent_id, 0, QModelIndex())
-            index = model.index(child_id, 0, parent_index)
-            if index.isValid():
-                self.tree_menu.setCurrentIndex(index)
-            """
+            model.delete_item(index)
 
     def closeEvent(self, event):
         self.write_settings()
