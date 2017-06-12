@@ -1,0 +1,15 @@
+digraph G
+{
+    node[shape=record]
+
+    start[shape = oval];
+    end[shape = oval];
+    parse_feed[label = "input:url|parse_feed|output:new_items" shape = Mrecord];
+    parse_item[label = "input:item|parse_item|output:html" shape = Mrecord];
+    have_new_items[shape = diamond];
+
+    start -> parse_feed -> have_new_items;
+    have_new_items -> parse_item[label = "Yes"];
+    have_new_items -> end[label = "No"];
+}
+
