@@ -63,6 +63,7 @@ Now working in PyQt5 GUI
 - [bug-fix] some feed has not ['content'][0]['value']
 
 # TODO
+- [function] if there is no cache, download it.
 - [function] show only unread items
 - [function] full screen model
 - [bug] when have unread item menu tree font is not bold
