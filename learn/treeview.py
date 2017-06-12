@@ -32,8 +32,8 @@ class TreeItem(object):
     def appendChild(self, item):
         self.childItems.append(item)
 
-    def removeChild(self, item):
-        self.childItems.remove(item)
+    def removeChild(self, index):
+        self.childItems.pop(index)
 
     def child(self, row):
         return self.childItems[row]
@@ -64,7 +64,7 @@ class TreeModel(QAbstractItemModel):
     def __init__(self, parent=None):
         super(TreeModel, self).__init__(parent)
 
-        self.rootItem = TreeItem(("Title", "Summary"))
+        self.rootItem = TreeItem(("Title", "Unread"))
         self.setupModelData()
 
     def columnCount(self, parent):
@@ -123,11 +123,18 @@ class TreeModel(QAbstractItemModel):
 
         return self.createIndex(parentItem.row(), 0, parentItem)
 
+    def index_to_item(self, index):
+        if index.isValid():
+            item = index.internalPointer()
+            if item:
+                return item
+        return self.rootItem
+
     def removeRows(self, row, count, parent):
-        parentItem = self.rootItem
-        self.beginRemoveRows(parent, row, row+count-1)
+        parentItem = self.index_to_item(parent)
+        self.beginRemoveRows(parent, row, row + count - 1)
         for i in range(count):
-            parentItem.childItems.remove(parentItem.childItems[i])
+            parentItem.removeChild(row)
         self.endRemoveRows()
         return True
 
@@ -143,13 +150,15 @@ class TreeModel(QAbstractItemModel):
         return parentItem.childCount()
 
     def setupModelData(self):
-        self.rootItem.appendChild(TreeItem(("第一个", 10), self.rootItem))
-        self.rootItem.appendChild(TreeItem(("第二个", 20), self.rootItem))
-        self.rootItem.appendChild(TreeItem(("第三个", 30), self.rootItem))
-        self.rootItem.appendChild(TreeItem(("第四个", 40), self.rootItem))
+        self.rootItem.appendChild(TreeItem(("First Folder", 10), self.rootItem))
+        self.rootItem.appendChild( TreeItem(("Second Folder", 20), self.rootItem))
+        self.rootItem.appendChild(TreeItem(("Third Folder", 30), self.rootItem))
+        self.rootItem.appendChild( TreeItem(("Fourth Folder", 40), self.rootItem))
 
         first = self.rootItem.childItems[0]
-        first.appendChild(TreeItem(("第1.1个", 11), first))
+        first.appendChild(TreeItem(("First feed", 11), first))
+        first.appendChild(TreeItem(("second feed", 12), first))
+        first.appendChild(TreeItem(("Third feed", 13), first))
 
 
 class MainWindow(QMainWindow):
@@ -165,29 +174,43 @@ class MainWindow(QMainWindow):
         main_layout = QVBoxLayout()
         main_layout.addWidget(self.view)
 
-        bt1 = QPushButton("第二个选中")
+        bt1 = QPushButton("Select second folder")
         bt1.clicked.connect(self.bt1_clicked)
         main_layout.addWidget(bt1)
 
-        bt2 = QPushButton("第三个删除")
+        bt2 = QPushButton("Delete third folder")
         bt2.clicked.connect(self.bt2_clicked)
         main_layout.addWidget(bt2)
+
+        bt3 = QPushButton("Delete current row")
+        bt3.clicked.connect(self.bt3_clicked)
+        main_layout.addWidget(bt3)
 
         widget.setLayout(main_layout)
         self.view.expandAll()
 
     def bt1_clicked(self):
-        row = 2
-        index = self.view.model().index(row - 1, 0, QModelIndex())
+        row = 1
+        index = self.view.model().index(row, 0, QModelIndex())
         self.view.setCurrentIndex(index)
 
     def bt2_clicked(self):
-        row = 3
+        row = 2
         model = self.view.model()
 
         parent_index = QModelIndex()
-        model.removeRows(row,1,parent_index)
+        model.removeRow(row, parent_index)
 
+    def bt3_clicked(self):
+        """
+        删除当前项
+        :return:
+        """
+        view = self.view
+        model = self.view.model()
+        curr_index = view.currentIndex()
+        print('current index row:', curr_index.row())
+        model.removeRow(curr_index.row(),  curr_index.parent())
 
 
 if __name__ == '__main__':

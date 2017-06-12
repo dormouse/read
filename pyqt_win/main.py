@@ -130,6 +130,8 @@ class MainWindow(QMainWindow):
         self.project_path = project_conf.PROJECT_PATH
         self.config_file = os.path.join(FULLPATH, 'config.ini')
         self.cache_path = os.path.join(FULLPATH, 'cache')
+        if not os.path.exists(self.cache_path):
+            os.mkdir(self.cache_path)
         self.default_item_index_file = 'index.html'
         self.timer = QTimer()
 
@@ -195,6 +197,7 @@ class MainWindow(QMainWindow):
         reply = QMessageBox.question(
             self, "Confirm", msg, QMessageBox.Yes | QMessageBox.No)
         if reply == QMessageBox.Yes:
+            """
             # which item should be current item after delete
             parent_item = item.parent()
             if parent_item.child_count() == 1:
@@ -207,6 +210,7 @@ class MainWindow(QMainWindow):
                     child_id = item.row() - 1
                 else:
                     child_id = item.row()
+            """
 
             # deal database data
             if item_type == 'feed':
@@ -216,6 +220,13 @@ class MainWindow(QMainWindow):
             self.query.save()
 
             # reload tree menu
+            view = self.tree_menu
+            model = view.model()
+            curr_index = view.currentIndex()
+            model.removeRow(curr_index.row(), curr_index.parent())
+            model.update_unread_count()
+
+            """
             self.tree_menu.load_from_database()
             model = self.tree_menu.model()
             if parent_id == 0:
@@ -226,6 +237,7 @@ class MainWindow(QMainWindow):
             index = model.index(child_id, 0, parent_index)
             if index.isValid():
                 self.tree_menu.setCurrentIndex(index)
+            """
 
     def closeEvent(self, event):
         self.write_settings()

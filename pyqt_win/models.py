@@ -85,6 +85,9 @@ class TreeItem(object):
     def append_child(self, item):
         self.childItems.append(item)
 
+    def removeChild(self, index):
+        self.childItems.pop(index)
+
     def child(self, row):
         return self.childItems[row]
 
@@ -191,6 +194,21 @@ class TreeModel(QAbstractItemModel):
             parentItem = parent.internalPointer()
 
         return parentItem.child_count()
+
+    def index_to_item(self, index):
+        if index.isValid():
+            item = index.internalPointer()
+            if item:
+                return item
+        return self.rootItem
+
+    def removeRows(self, row, count, parent):
+        parentItem = self.index_to_item(parent)
+        self.beginRemoveRows(parent, row, row + count - 1)
+        for i in range(count):
+            parentItem.removeChild(row)
+        self.endRemoveRows()
+        return True
 
     def init_model_data(self):
         self.beginResetModel()
