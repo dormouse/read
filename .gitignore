@@ -93,10 +93,9 @@ ENV/
 
 # My project
 .cache/
-
-pttg20161113/
 /pyqt_win/cache/*
 database/rss.sqlite
 database/test/test.sqlite
 pyqt_win/conf.json
 pyqt_win/config.ini
+/database/rss_back.sqlite

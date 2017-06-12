@@ -1,71 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="df60f7b9-5dca-4814-88bd-3a21f4b36c9e" name="Default" comment="move to github">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/database/book.sqlite" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/learn/email.png" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/static/images/1187641.png" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/static/images/1187849.png" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/static/images/1190332.png" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/static/images/1199462.png" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/static/images/1199924.png" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/static/images/1199963.png" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/static/images/1202658.png" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/static/images/1202698.png" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/static/images/1202738.png" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/static/images/1207350.png" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/static/images/1207351.png" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/static/images/update_all.png" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/template/cover.jpg" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/database/__init__.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/database/database.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/database/models.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/database/test/__init__.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/database/test/test_queries.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/flow.dot" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/learn/combobox.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/learn/feedparser_url.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/learn/pic_listview.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/learn/qthread_learn.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/learn/treeview.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/main_qt.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/make_mobi_dapenti.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/project_conf.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/pyqt_win/__init__.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/pyqt_win/add_feed_wizard.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/pyqt_win/dialogs.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/pyqt_win/main.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/pyqt_win/models.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/pyqt_win/parser.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/pyqt_win/queries.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/pyqt_win/template/index.html" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/pyqt_win/template/style.css" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/pyqt_win/test/__init__.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/pyqt_win/test/test_main.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/pyqt_win/test/test_parser.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/pyqt_win/views.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/run.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/run.sh" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/test/test_book/pttg20161113.html" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/test/test_book/pttg20161113.mobi" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/test/test_book/toc.html" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/test/test_book/toc.ncx" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/test/test_img.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/test/test_parser_rss.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/test/test_yttools.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/yttools.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/流程图.md" />
+    <list default="true" id="df60f7b9-5dca-4814-88bd-3a21f4b36c9e" name="Default" comment="improve tree menu view - remove rows">
       <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/misc.xml" afterPath="" />
       <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/modules.xml" afterPath="" />
       <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/read.iml" afterPath="" />
       <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/vcs.xml" afterPath="" />
       <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/pttg20161113/pttg20161113.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/pttg20161113/pttg20161113.mobi" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/pttg20161113/toc.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/pttg20161113/toc.ncx" afterPath="" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/pttg20161113/pttg20161113.opf" afterPath="$PROJECT_DIR$/test/test_book/pttg20161113.opf" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/pttg20161113/style.css" afterPath="$PROJECT_DIR$/test/test_book/style.css" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.gitignore" afterPath="$PROJECT_DIR$/.gitignore" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -80,43 +22,55 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="make_mobi.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/make_mobi.py">
+      <file leaf-file-name="treeview.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/learn/treeview.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="936">
-              <caret line="66" column="0" lean-forward="false" selection-start-line="66" selection-start-column="0" selection-end-line="66" selection-end-column="0" />
+            <state relative-caret-position="3636">
+              <caret line="212" column="8" lean-forward="false" selection-start-line="212" selection-start-column="8" selection-end-line="212" selection-end-column="8" />
               <folding>
-                <element signature="e#48#62#0" expanded="true" />
+                <element signature="e#23#32#0" expanded="true" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="treeview.py" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/learn/treeview.py">
+      <file leaf-file-name="models.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/pyqt_win/models.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="396">
-              <caret line="170" column="0" lean-forward="false" selection-start-line="170" selection-start-column="0" selection-end-line="170" selection-end-column="0" />
+            <state relative-caret-position="4572">
+              <caret line="264" column="26" lean-forward="false" selection-start-line="264" selection-start-column="26" selection-end-line="264" selection-end-column="26" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="toc.html" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/template/toc.html">
+      <file leaf-file-name="main.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/pyqt_win/main.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="0">
-              <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+            <state relative-caret-position="744">
+              <caret line="226" column="38" lean-forward="false" selection-start-line="226" selection-start-column="38" selection-end-line="226" selection-end-column="38" />
+              <folding>
+                <element signature="e#0#9#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name=".gitignore" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/.gitignore">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="493">
+              <caret line="100" column="24" lean-forward="false" selection-start-line="100" selection-start-column="24" selection-end-line="100" selection-end-column="24" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="index.opf" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/template/index.opf">
+      <file leaf-file-name="queries.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/pyqt_win/queries.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="270">
-              <caret line="15" column="21" lean-forward="false" selection-start-line="15" selection-start-column="21" selection-end-line="15" selection-end-column="21" />
+            <state relative-caret-position="216">
+              <caret line="19" column="13" lean-forward="false" selection-start-line="19" selection-start-column="13" selection-end-line="19" selection-end-column="13" />
               <folding />
             </state>
           </provider>
@@ -126,6 +80,16 @@
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="IdeDocumentHistory">
+    <option name="CHANGED_PATHS">
+      <list>
+        <option value="$PROJECT_DIR$/learn/treeview.py" />
+        <option value="$PROJECT_DIR$/pyqt_win/models.py" />
+        <option value="$PROJECT_DIR$/pyqt_win/main.py" />
+        <option value="$PROJECT_DIR$/.gitignore" />
+      </list>
+    </option>
   </component>
   <component name="ProjectFrameBounds">
     <option name="y" value="3" />
@@ -147,7 +111,6 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="Scratches" />
       <pane id="ProjectPane">
         <subPane>
           <PATH>
@@ -198,13 +161,42 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
+              <option name="myItemId" value="pyqt_win" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="read" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="read" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
               <option name="myItemId" value="learn" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="read" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="read" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="database" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
         </subPane>
       </pane>
       <pane id="Scope" />
+      <pane id="Scratches" />
     </panes>
   </component>
   <component name="RunDashboard">
@@ -219,7 +211,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.treeview">
+  <component name="RunManager" selected="Python.main">
     <configuration default="false" name="make_mobi" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -251,6 +243,24 @@
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <module name="read" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/learn/treeview.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <method />
+    </configuration>
+    <configuration default="false" name="main" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/pyqt_win" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="read" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/pyqt_win/main.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -363,14 +373,16 @@
       <option name="_new_targetType" value="&quot;PATH&quot;" />
       <method />
     </configuration>
-    <list size="2">
+    <list size="3">
       <item index="0" class="java.lang.String" itemvalue="Python.make_mobi" />
       <item index="1" class="java.lang.String" itemvalue="Python.treeview" />
+      <item index="2" class="java.lang.String" itemvalue="Python.main" />
     </list>
     <recent_temporary>
-      <list size="2">
-        <item index="0" class="java.lang.String" itemvalue="Python.treeview" />
-        <item index="1" class="java.lang.String" itemvalue="Python.make_mobi" />
+      <list size="3">
+        <item index="0" class="java.lang.String" itemvalue="Python.main" />
+        <item index="1" class="java.lang.String" itemvalue="Python.treeview" />
+        <item index="2" class="java.lang.String" itemvalue="Python.make_mobi" />
       </list>
     </recent_temporary>
     <configuration default="true" type="tests" factoryName="Attests">
@@ -396,6 +408,9 @@
   <component name="ShelveChangesManager" show_recycled="false">
     <option name="remove_strategy" value="false" />
   </component>
+  <component name="StructureViewFactory">
+    <option name="ACTIVE_ACTIONS" value=",SHOW_FIELDS,SHOW_INHERITED,ALPHA_COMPARATOR" />
+  </component>
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
       <changelist id="df60f7b9-5dca-4814-88bd-3a21f4b36c9e" name="Default" comment="move to github" />
@@ -404,22 +419,44 @@
       <option name="presentableId" value="Default" />
       <updated>1497233278052</updated>
     </task>
+    <task id="LOCAL-00001" summary="move to github">
+      <created>1497233319219</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1497233319219</updated>
+    </task>
+    <task id="LOCAL-00002" summary="improve tree menu view - remove rows">
+      <created>1497252835722</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1497252835722</updated>
+    </task>
+    <task id="LOCAL-00003" summary="improve tree menu view - remove rows">
+      <created>1497253518885</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1497253518885</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="3" width="1274" height="996" extended-state="0" />
     <layout>
-      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.25856444" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.18433931" sideWeight="0.5" order="3" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32936978" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
-      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32985783" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.24959217" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.32936978" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32936978" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.20799348" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32985783" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
-      <window_info id="Data View" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.39952436" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="1" side_tool="true" content_ui="tabs" />
+      <window_info id="Data View" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
@@ -432,18 +469,87 @@
   <component name="VcsContentAnnotationSettings">
     <option name="myLimit" value="2678400000" />
   </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="move to github" />
+    <MESSAGE value="improve tree menu view - remove rows" />
+    <option name="LAST_COMMIT_MESSAGE" value="improve tree menu view - remove rows" />
+    <option name="REFORMAT_BEFORE_PROJECT_COMMIT" value="true" />
+    <option name="REARRANGE_BEFORE_PROJECT_COMMIT" value="true" />
+  </component>
   <component name="XDebuggerManager">
-    <breakpoint-manager />
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/learn/treeview.py</url>
+          <line>133</line>
+          <option name="timeStamp" value="1" />
+        </line-breakpoint>
+      </breakpoints>
+      <option name="time" value="2" />
+    </breakpoint-manager>
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
+    <entry file="file://$PROJECT_DIR$/learn/treeview.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="3816">
+          <caret line="212" column="8" lean-forward="false" selection-start-line="212" selection-start-column="8" selection-end-line="212" selection-end-column="8" />
+          <folding>
+            <element signature="e#23#32#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/pyqt_win/models.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="4572">
+          <caret line="264" column="26" lean-forward="false" selection-start-line="264" selection-start-column="26" selection-end-line="264" selection-end-column="26" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/pyqt_win/main.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="3870">
+          <caret line="226" column="38" lean-forward="false" selection-start-line="226" selection-start-column="38" selection-end-line="226" selection-end-column="38" />
+          <folding>
+            <element signature="e#0#9#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/learn/treeview.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding>
+            <element signature="e#23#32#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/pyqt_win/models.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="4752">
+          <caret line="264" column="26" lean-forward="false" selection-start-line="264" selection-start-column="26" selection-end-line="264" selection-end-column="26" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/pyqt_win/main.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="3870">
+          <caret line="226" column="38" lean-forward="false" selection-start-line="226" selection-start-column="38" selection-end-line="226" selection-end-column="38" />
+          <folding>
+            <element signature="e#0#9#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/make_mobi.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="1188">
           <caret line="66" column="0" lean-forward="false" selection-start-line="66" selection-start-column="0" selection-end-line="66" selection-end-column="0" />
-          <folding>
-            <element signature="e#48#62#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -451,7 +557,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -459,7 +564,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="270">
           <caret line="15" column="21" lean-forward="false" selection-start-line="15" selection-start-column="21" selection-end-line="15" selection-end-column="21" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -467,33 +571,16 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="2880">
           <caret line="170" column="0" lean-forward="false" selection-start-line="170" selection-start-column="0" selection-end-line="170" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/make_mobi.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
-            <element signature="e#48#62#0" expanded="true" />
+            <element signature="e#23#32#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/template/toc.html">
+    <entry file="file://$PROJECT_DIR$/make_mobi.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/template/index.opf">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="270">
-          <caret line="15" column="21" lean-forward="false" selection-start-line="15" selection-start-column="21" selection-end-line="15" selection-end-column="21" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -501,7 +588,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -509,24 +595,92 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="270">
           <caret line="15" column="21" lean-forward="false" selection-start-line="15" selection-start-column="21" selection-end-line="15" selection-end-column="21" />
-          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/template/toc.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/template/index.opf">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="270">
+          <caret line="15" column="21" lean-forward="false" selection-start-line="15" selection-start-column="21" selection-end-line="15" selection-end-column="21" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/main.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/make_mobi.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="936">
+        <state relative-caret-position="0">
           <caret line="66" column="0" lean-forward="false" selection-start-line="66" selection-start-column="0" selection-end-line="66" selection-end-column="0" />
-          <folding>
-            <element signature="e#48#62#0" expanded="true" />
-          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/anaconda3/envs/read/lib/python3.6/site-packages/PyQt5/QtCore.pyi">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="177">
+          <caret line="1868" column="8" lean-forward="false" selection-start-line="1868" selection-start-column="8" selection-end-line="1868" selection-end-column="8" />
+          <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/learn/treeview.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="396">
-          <caret line="170" column="0" lean-forward="false" selection-start-line="170" selection-start-column="0" selection-end-line="170" selection-end-column="0" />
+        <state relative-caret-position="3636">
+          <caret line="212" column="8" lean-forward="false" selection-start-line="212" selection-start-column="8" selection-end-line="212" selection-end-column="8" />
+          <folding>
+            <element signature="e#23#32#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/anaconda3/envs/read/lib/python3.6/shutil.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="177">
+          <caret line="119" column="0" lean-forward="false" selection-start-line="119" selection-start-column="0" selection-end-line="119" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/pyqt_win/models.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="4572">
+          <caret line="264" column="26" lean-forward="false" selection-start-line="264" selection-start-column="26" selection-end-line="264" selection-end-column="26" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/pyqt_win/queries.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="216">
+          <caret line="19" column="13" lean-forward="false" selection-start-line="19" selection-start-column="13" selection-end-line="19" selection-end-column="13" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/pyqt_win/main.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="744">
+          <caret line="226" column="38" lean-forward="false" selection-start-line="226" selection-start-column="38" selection-end-line="226" selection-end-column="38" />
+          <folding>
+            <element signature="e#0#9#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/.gitignore">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="493">
+          <caret line="100" column="24" lean-forward="false" selection-start-line="100" selection-start-column="24" selection-end-line="100" selection-end-column="24" />
           <folding />
         </state>
       </provider>
