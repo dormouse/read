@@ -165,20 +165,24 @@ class MainWindow(QMainWindow):
             self.tree_menu.model().add_item(item_type, curr_index, **data)
 
     def add_feed(self):
-        folder_id = self.tree_menu.folder_id()
+        folder_id = None
+        curr_index = self.tree_menu.currentIndex()
+        if curr_index.isValid():
+            item = curr_index.internalPointer()
+            item_type = item.type
+            if item_type == 'feed':
+                folder_id = item.parent().user_data
+            if item_type == 'folder':
+                folder_id = item.user_data
         wizard = AddFeedWizard(folder_id)
         wizard.setWindowTitle("Add Feed Wizard")
         wizard.show()
 
         ok = wizard.exec_()
         if ok:
-            curr_index = self.tree_menu.currentIndex()
             item_type = 'feed'
             data = wizard.get_data()
             self.tree_menu.model().add_item(item_type, curr_index, **data)
-            # self.query.add_feed(**data)
-            # self.query.save()
-            # self.tree_menu.load_from_database()
         wizard.destroy()
 
     def delete_feeds(self):
@@ -599,7 +603,19 @@ class MainWindow(QMainWindow):
             feed_rows = self.query.feed_rows()
             feed_ids = [row.id for row in feed_rows]
         else:
-            feed_ids = self.tree_menu.current_feed_ids()
+            feed_ids = []
+            item = self.current_item()
+            item_type = item.type
+            item_data = item.user_data
+            if item_type == 'feed':
+                feed_ids.append(item_data)
+            if item_type == 'folder':
+                rows = self.query.feed_rows(item_data)
+                feed_ids = [row.id for row in rows]
+            if item_type == 'command' and item_data == 'load_all_items':
+                rows = self.query.feed_rows()
+                feed_ids = [row.id for row in rows]
+
 
         self.update_feeds_worker = UpdateFeedsWorker(feed_ids)
         self.update_feeds_worker.start_parseing_feed.connect(

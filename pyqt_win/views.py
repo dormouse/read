@@ -113,21 +113,6 @@ class TreeMenu(QTreeView):
         self.model().init_model_data()
         self.expandAll()
 
-    def folder_id(self):
-        """
-        get the item which folder belong
-        :return: folder id
-        """
-        item = self.current_item()
-        item_type = item.type
-        item_data = item.user_data
-        query = self.model().query
-        if item_type == 'feed':
-            row = query.feed_row(id=item_data)
-            return row.folder_id
-        if item_type == 'folder':
-            return item_data
-
     def currentChanged(self, curr_index, prev_index):
         self.log.debug("current changed")
         self.current_changed.emit(curr_index, prev_index)
