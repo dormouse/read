@@ -57,7 +57,7 @@ class FeedDialog(QDialog):
             self.folderWidget.setCurrentText(folder_name)
 
     def loadData(self, feed_id):
-        row = self.query.feed_row(feed_id)
+        row = self.query.feed_row(id=feed_id)
         if row:
             self.titleWidget.setText(row.title)
             self.urlWidget.setText(row.url)

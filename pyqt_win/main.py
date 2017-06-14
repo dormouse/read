@@ -112,7 +112,7 @@ class UpdateFeedsWorker(QObject):
     @pyqtSlot()
     def work_start(self):
         for feed_id in self.feed_ids:
-            feed = self.query.feed_row(feed_id)
+            feed = self.query.feed_row(id=feed_id)
             self.start_parseing_feed.emit(feed.title)
             self.query.update_feed(feed_id)
 
@@ -159,9 +159,10 @@ class MainWindow(QMainWindow):
         text, ok = QInputDialog.getText(self, "Please Input Folder Name",
                                         "Folder Name:", QLineEdit.Normal)
         if ok and text != '':
-            self.query.add_folder(text)
-            self.query.save()
-            self.tree_menu.load_from_database()
+            curr_index = self.tree_menu.currentIndex()
+            item_type = 'folder'
+            data = dict(item_text=text)
+            self.tree_menu.model().add_item(item_type, curr_index, **data)
 
     def add_feed(self):
         folder_id = self.tree_menu.folder_id()
@@ -171,10 +172,13 @@ class MainWindow(QMainWindow):
 
         ok = wizard.exec_()
         if ok:
+            curr_index = self.tree_menu.currentIndex()
+            item_type = 'feed'
             data = wizard.get_data()
-            self.query.add_feed(**data)
-            self.query.save()
-            self.tree_menu.load_from_database()
+            self.tree_menu.model().add_item(item_type, curr_index, **data)
+            # self.query.add_feed(**data)
+            # self.query.save()
+            # self.tree_menu.load_from_database()
         wizard.destroy()
 
     def delete_feeds(self):

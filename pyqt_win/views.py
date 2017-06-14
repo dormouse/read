@@ -123,7 +123,7 @@ class TreeMenu(QTreeView):
         item_data = item.user_data
         query = self.model().query
         if item_type == 'feed':
-            row = query.feed_row(item_data)
+            row = query.feed_row(id=item_data)
             return row.folder_id
         if item_type == 'folder':
             return item_data
@@ -135,7 +135,6 @@ class TreeMenu(QTreeView):
     def current_item(self):
         index = self.currentIndex()
         if index.isValid():
-            self.log.debug("index is valid")
             item = index.internalPointer()
             return item
         else:

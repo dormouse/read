@@ -84,3 +84,6 @@ Now working in PyQt5 GUI
 # Note
 icon download:http://www.easyicon.net/iconsearch/mail/
 ompl:http://dev.opml.org/spec2.html
+
+test rss:
+    https://kindlefere.com/feed

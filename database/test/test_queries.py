@@ -132,7 +132,7 @@ class TestQueries:
 
     def test_feed_row(self):
         known_value = self.init_feeds[0]
-        row = self.query.feed_row(1)
+        row = self.query.feed_row(id=1)
         result = dict(
             title=row.title,
             folder_id=row.folder_id,
@@ -310,7 +310,7 @@ class TestQueries:
         }
         self.query.modi_feed(feed_id, **data)
         self.query.save()
-        feed = self.query.feed_row(1)
+        feed = self.query.feed_row(id=1)
         known_value = data['title']
         result = feed.title
         self.init_test_data()

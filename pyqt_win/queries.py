@@ -28,9 +28,20 @@ class QueryRss(object):
             rows = self.sess.query(RssFeed).all()
         return rows
 
-    def feed_row(self, feed_id):
-        row = self.sess.query(RssFeed).filter(RssFeed.id == feed_id).first()
-        return row
+    def feeds_query(self, **kwargs):
+        query = self.sess.query(RssFeed)
+        for key, value in kwargs.items():
+            query = query.filter(getattr(RssFeed, key) == value)
+        return query
+
+    def feed_row(self, **kwargs):
+        """
+        get first feed row
+        :param feed_id:
+        :return:
+        """
+        query = self.feeds_query(**kwargs)
+        return query.first()
 
     def feed_url(self, feed_id):
         url = self.sess.query(RssFeed.url).filter(
@@ -50,6 +61,11 @@ class QueryRss(object):
         name = self.sess.query(RssFolder.name). \
             filter(RssFolder.id == folder_id).scalar()
         return name
+
+    def folder_id(self, folder_name):
+        folder_id = self.sess.query(RssFolder.id). \
+            filter(RssFolder.name == folder_name).scalar()
+        return folder_id
 
     def add(self, obj, **kwargs):
         for k, v in kwargs.items():
@@ -76,7 +92,7 @@ class QueryRss(object):
             self.sess.delete(item)
         # map(self.sess.delete, items)
         # delete feed
-        feed = self.feed_row(feed_id)
+        feed = self.feed_row(id=feed_id)
         self.sess.delete(feed)
 
     def delete_folder(self, folder_id):
@@ -119,7 +135,7 @@ class QueryRss(object):
         return True if query.count() else False
 
     def modi_feed(self, feed_id, **kwargs):
-        feed_row = self.feed_row(feed_id)
+        feed_row = self.feed_row(id=feed_id)
         for k, v in kwargs.items():
             if hasattr(feed_row, k):
                 setattr(feed_row, k, v)
@@ -153,7 +169,7 @@ class QueryRss(object):
             self.save()
 
     def update_feed(self, feed_id):
-        feed = self.feed_row(feed_id)
+        feed = self.feed_row(id=feed_id)
         url = feed.url
         feed_data = feedparser.parse(url)
         if feed_data['bozo'] == 1:

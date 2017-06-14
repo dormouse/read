@@ -74,16 +74,27 @@ class ItemListModel(SqlModel):
 
 
 class TreeItem(object):
-    def __init__(self, data, parent=None):
+    def __init__(self, data=None, parent=None):
         self.log = project_conf.LOG
 
         self.parentItem = parent
         self.childItems = []
         self.data = None
-        self.set_data(data)
+        if data:
+            self.set_data(data)
 
     def append_child(self, item):
         self.childItems.append(item)
+
+    def insertChildren(self, position, count):
+        if position < 0 or position > len(self.childItems):
+            return False
+
+        for row in range(count):
+            item = TreeItem(None, self)
+            self.childItems.insert(position, item)
+
+        return True
 
     def removeChildren(self, start, count):
         if start < 0 or start + count > len(self.childItems):
@@ -133,10 +144,10 @@ class TreeModel(QAbstractItemModel):
     def set_unread_font(self, font):
         self.unread_font = font
 
-    def columnCount(self, parent):
+    def columnCount(self, parent=QModelIndex()):
         return len(self.header_info)
 
-    def data(self, index, role):
+    def data(self, index, role=Qt.DisplayRole):
         if not index.isValid():
             return None
 
@@ -146,8 +157,10 @@ class TreeModel(QAbstractItemModel):
         item = index.internalPointer()
         if role == Qt.FontRole:
             return self.unread_font if item.unread else self.read_font
-
-        return item.data[self.header_info[index.column()]]
+        if item.data:
+            return item.data.get(self.header_info[index.column()])
+        else:
+            return None
 
     def flags(self, index):
         if not index.isValid():
@@ -155,7 +168,7 @@ class TreeModel(QAbstractItemModel):
 
         return Qt.ItemIsEnabled | Qt.ItemIsSelectable
 
-    def headerData(self, section, orientation, role):
+    def headerData(self, section, orientation, role=Qt.DisplayRole):
         if orientation == Qt.Horizontal and role == Qt.DisplayRole:
             return self.header_info[section]
 
@@ -206,12 +219,92 @@ class TreeModel(QAbstractItemModel):
                 return item
         return self.rootItem
 
+    def item_to_index(self, item):
+        return self.createIndex(item.row(), 0, item)
+
     def removeRows(self, start, count, parent=QModelIndex()):
         parent_item = self.index_to_item(parent)
         self.beginRemoveRows(parent, start, start + count - 1)
         success = parent_item.removeChildren(start, count)
         self.endRemoveRows()
         return success
+
+    def insertRows(self, start, count, parent=QModelIndex()):
+        parentItem = self.index_to_item(parent)
+        self.beginInsertRows(parent, start, start + count - 1)
+        success = parentItem.insertChildren(start, count)
+        self.endInsertRows()
+        return success
+
+    def find_folder_item(self, folder_id):
+        item = None
+        folder_items = self.rootItem.childItems
+        for folder_item in folder_items:
+            if folder_item.user_data == folder_id:
+                item = folder_item
+        return item
+
+    def add_item(self, item_type, curr_index, **kwargs):
+        if item_type not in ('folder', 'feed'):
+            self.log.error("item type not in ('folder, 'feed')")
+            return
+
+        if item_type == 'folder':
+            folder_name = kwargs['item_text']
+            # write data to database
+            self.query.add_folder(folder_name)
+            self.query.save()
+            # add tree menu item
+            if curr_index.isValid():
+                curr_item = curr_index.internalPointer()
+                if curr_item.type == 'feed':
+                    curr_index = curr_index.parent()
+                start = curr_index.row()
+            else:
+                start = self.rootItem.child_count() - 1
+            if self.insertRow(start, curr_index.parent()):
+                folder_id = self.query.folder_id(folder_name)
+                data = {
+                    'text': folder_name,
+                    'type': 'folder',
+                    'user_data': folder_id,
+                    'unread': 0
+                }
+                item = self.rootItem.childItems[start]
+                item.set_data(data)
+        else:
+            # add feed
+            # kwargs should be {title=,url= ,folder_id=}
+            folder_id = kwargs['folder_id']
+            # write data to database
+            self.query.add_feed(**kwargs)
+            self.query.save()
+
+            # add tree menu item
+            parent_item = self.find_folder_item(folder_id)
+            parent_index = self.item_to_index(parent_item)
+            start = parent_item.child_count() - 1
+            if curr_index.isValid():
+                curr_item = curr_index.internalPointer()
+                if curr_item.type == 'feed':
+                    self.log.debug("current item is a feed")
+                    if curr_item.parent() == parent_item:
+                        self.log.debug("current item's parent same")
+                        start = curr_index.row()
+            self.log.debug(
+                "start insert row, start:{}, parent title:{}".format(
+                    start, parent_item.text))
+            if self.insertRow(start, parent_index):
+                self.log.debug("insert row success")
+                feed_id = self.query.feed_row(**kwargs).id
+                data = {
+                    'text': kwargs['title'],
+                    'type': 'feed',
+                    'user_data': feed_id,
+                    'unread': 0
+                }
+                item = parent_item.childItems[start]
+                item.set_data(data)
 
     def delete_item(self, index):
         item = index.internalPointer()
