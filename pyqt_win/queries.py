@@ -20,6 +20,11 @@ class QueryRss(object):
         self.cache_path = os.path.join(FULLPATH, 'cache')
         self.default_item_index_file = 'index.html'
 
+    def set_test_db(self, engi, sess, base):
+        self.engi = rss_engi
+        self.sess = rss_sess
+        self.base = rss_base
+
     def feed_rows(self, folder_id=None):
         if folder_id:
             rows = self.sess.query(RssFeed). \

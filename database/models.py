@@ -51,6 +51,30 @@ class BookDict(book_base):
     value = Column(TEXT)
 
 
+class Node(rss_base):
+    __tablename__ = 'node'
+
+    id = Column(INTEGER, primary_key=True)
+    parent_id = Column(INTEGER, ForeignKey('node.id'))
+    category = Column(TEXT)
+    children = relationship("Node")
+    data_id = Column(INTEGER)  # RssAction.id or RssFolder.id or RssFeed.id
+    rank = Column(INTEGER)  # rank for display in tree
+
+
+class RssAction(rss_base):
+    __tablename__ = 'rss_action'
+    id = Column(INTEGER, primary_key=True)
+    name = Column(TEXT)
+    action = Column(TEXT)
+
+    def __init__(self, name):
+        self.name = name
+
+    def __repr__(self):
+        return "Action:{}".format(self.name)
+
+
 class RssFolder(rss_base):
     __tablename__ = 'rss_folder'
     id = Column(INTEGER, primary_key=True)
@@ -75,8 +99,6 @@ class RssFeed(rss_base):
     site_url = Column(TEXT)
     published = Column(DATETIME)
     updated = Column(DATETIME)
-    folder_id = Column(INTEGER, ForeignKey('rss_folder.id'))
-    folder = relationship("RssFolder")
 
     def __repr__(self):
         return "feed:{}".format(self.title)

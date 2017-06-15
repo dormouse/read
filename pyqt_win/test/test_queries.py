@@ -7,9 +7,9 @@ import shutil
 
 from sqlalchemy import desc
 
-from database.database import rss_engi, rss_base
+from database.test.database import rss_engi, rss_base
 from database.models import RssItem
-from database.queries import QueryRss
+from pyqt_win.queries import QueryRss
 
 
 def setup_module(module):
