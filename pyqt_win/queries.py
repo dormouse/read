@@ -3,7 +3,7 @@ import os
 import feedparser
 
 from database.database import rss_sess, rss_base, rss_engi
-from database.models import RssFeed, RssFolder, RssItem
+from database.models import Node, RssFeed, RssFolder, RssItem
 from pyqt_win.parser import ItemParser
 import project_conf
 
@@ -12,6 +12,8 @@ FULLPATH = os.path.abspath(os.path.dirname(__file__))
 
 class QueryRss(object):
     def __init__(self):
+        self.log = project_conf.LOG
+
         self.engi = rss_engi
         self.sess = rss_sess
         self.base = rss_base
@@ -72,23 +74,54 @@ class QueryRss(object):
             filter(RssFolder.name == folder_name).scalar()
         return folder_id
 
-    def add(self, obj, **kwargs):
-        for k, v in kwargs.items():
-            if hasattr(obj, k):
-                setattr(obj, k, v)
-        self.sess.add(obj)
+    def category_class(self, category):
+        categories = ['node', 'folder', 'feed', 'item']
+        if category not in categories:
+            self.log.error(
+                "category error: {} not in ['node', 'folder', "
+                "'feed', 'item']".format(category)
+            )
+            return None
+        if category == 'item':
+            obj_class = RssItem
+        elif category == 'feed':
+            obj_class = RssFeed
+        elif category == 'folder':
+            obj_class = RssFolder
+        elif category == 'node':
+            obj_class = Node
+        return obj_class
 
-    def add_folder(self, name):
-        folder = RssFolder(name)
-        self.add(folder)
+    def add_data(self, category, **kwargs):
+        obj_class = self.category_class(category)
+        if obj_class:
+            obj = obj_class()
+            for k, v in kwargs.items():
+                if hasattr(obj, k):
+                    setattr(obj, k, v)
+            self.sess.add(obj)
 
-    def add_feed(self, **kwargs):
-        feed = RssFeed()
-        self.add(feed, **kwargs)
+    def read_data(self, category, **kwargs):
+        obj_class = self.category_class(category)
+        if obj_class:
+            query = self.sess.query(obj_class)
+            for key, value in kwargs.items():
+                query = query.filter(
+                    getattr(obj_class, key) == value
+                )
+            return query
+        else:
+            return None
 
-    def add_item(self, **kwargs):
-        item = RssItem()
-        self.add(item, **kwargs)
+    def modi_data(self, category, filter_value, new_value):
+        query = self.read_data(category, **filter_value)
+        if query:
+            query.update(new_value)
+
+    def dele_data(self, category, **kwargs):
+        query = self.read_data(category, **kwargs)
+        if query:
+            query.delete()
 
     def delete_feed(self, feed_id):
         # delete feed's item

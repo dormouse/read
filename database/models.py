@@ -61,27 +61,24 @@ class Node(rss_base):
     data_id = Column(INTEGER)  # RssAction.id or RssFolder.id or RssFeed.id
     rank = Column(INTEGER)  # rank for display in tree
 
+    def __repr__(self):
+        return "Node:{}".format(self.id)
 
-class RssAction(rss_base):
-    __tablename__ = 'rss_action'
+
+class RssCommand(rss_base):
+    __tablename__ = 'rss_commander'
     id = Column(INTEGER, primary_key=True)
     name = Column(TEXT)
-    action = Column(TEXT)
-
-    def __init__(self, name):
-        self.name = name
+    command = Column(TEXT)
 
     def __repr__(self):
-        return "Action:{}".format(self.name)
+        return "Commander:{}".format(self.name)
 
 
 class RssFolder(rss_base):
     __tablename__ = 'rss_folder'
     id = Column(INTEGER, primary_key=True)
     name = Column(TEXT)
-
-    def __init__(self, name):
-        self.name = name
 
     def __repr__(self):
         return "folder:{}".format(self.name)

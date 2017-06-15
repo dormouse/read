@@ -7,8 +7,8 @@ import shutil
 
 from sqlalchemy import desc
 
-from database.test.database import rss_engi, rss_base
-from database.models import RssItem
+from database.test.database import rss_engi, rss_sess, rss_base
+from database.models import Node, RssFolder, RssFeed, RssCommand, RssItem
 from pyqt_win.queries import QueryRss
 
 
@@ -25,54 +25,92 @@ def teardown_module(module):
 
 
 class TestQueries:
-    def init_test_data(self):
+    def init_data(self):
         rss_base.metadata.drop_all(rss_engi)
         rss_base.metadata.create_all(rss_engi)
-        for folder in self.init_folders:
-            self.query.add_folder(folder)
-        for feed in self.init_feeds:
-            self.query.add_feed(**feed)
-        for item in self.init_items:
-            self.query.add_item(**item)
-        self.query.save()
-
-    @classmethod
-    def setup_class(self):
-        """ setup any state specific to the execution of the given class (which
-        usually contains tests).
         """
-        base_path = os.path.abspath(os.path.dirname(__file__))
-        db_path = os.path.dirname(base_path)
-        self.src_db_file = os.path.join(db_path, 'rss.sqlite')
-        self.bak_db_file = os.path.join(db_path, 'rss.sqlite.bak')
-
-        if os.path.exists(self.src_db_file):
-            self.need_recover = True
-            shutil.copy(self.src_db_file, self.bak_db_file)
-            os.remove(self.src_db_file)
-        else:
-            self.need_recover = False
-
-        self.query = QueryRss()
-        self.init_folders = ['default', 'apple']
-        self.init_feeds = [
-            dict(
-                title='test_feed1',
-                folder_id=1,
-                url='http://test_feed1.com/feed'
-            ),
-            dict(
-                title='test_feed2',
-                folder_id=1,
-                url='http://test_feed2.com/feed'
-            ),
-            dict(
-                title='test_feed3',
-                folder_id=2,
-                url='http://test_feed3.com/feed'
-            ),
-
+        ALL
+        ALL Unread
+        feed1
+        feed2
+        Apple
+            apple_feed1
+            apple_feed2
+            apple_feed3
+        Imported
+            Funny
+                funny_feed1
+                funny_feed2
+                funny_feed3
+            News
+                news_feed1
+                news_feed2
+        """
+        commander_datas = [
+            dict(name="ALL",
+                 command="load_all_items"),
+            dict(name="All Unread",
+                 command="load_all_unread_items")
         ]
+        folder_datas = [
+            dict(name="Apple"),
+            dict(name="Imported"),
+            dict(name="Funny"),
+            dict(name="News"),
+        ]
+        feed_datas = [
+            dict(title='feed1'),
+            dict(title='feed2'),
+            dict(title='apple_feed1'),
+            dict(title='apple_feed2'),
+            dict(title='apple_feed3'),
+            dict(title='funny_feed1'),
+            dict(title='funny_feed2'),
+            dict(title='funny_feed3'),
+            dict(title='news_feed1'),
+            dict(title='news_feed2'),
+        ]
+
+        node_datas = [
+            dict(parent_id=None, category='command',
+                 data_id=1, rank=0),
+            dict(parent_id=None, category='command',
+                 data_id=2, rank=1),
+            dict(parent_id=None, category='feed',
+                 data_id=1, rank=2),
+            dict(parent_id=None, category='feed',
+                 data_id=2, rank=3),
+            dict(parent_id=None, category='folder',
+                 data_id=1, rank=4),
+            dict(parent_id=5, category='feed',
+                 data_id=3, rank=0),
+            dict(parent_id=5, category='feed',
+                 data_id=4, rank=1),
+            dict(parent_id=5, category='feed',
+                 data_id=5, rank=2),
+            dict(parent_id=None, category='folder',
+                 data_id=2, rank=5),
+            dict(parent_id=9, category='folder',
+                 data_id=3, rank=0),
+            dict(parent_id=10, category='feed',
+                 data_id=6, rank=0),
+            dict(parent_id=10, category='feed',
+                 data_id=7, rank=1),
+            dict(parent_id=10, category='feed',
+                 data_id=8, rank=2),
+            dict(parent_id=9, category='folder',
+                 data_id=4, rank=1),
+            dict(parent_id=14, category='feed',
+                 data_id=9, rank=0),
+            dict(parent_id=14, category='feed',
+                 data_id=10, rank=1),
+        ]
+        sess = self.query.sess
+        sess.add_all(commander_datas)
+        sess.add_all(folder_datas)
+        sess.add_all(feed_datas)
+        sess.add_all(node_datas)
+        """
         self.init_items = [
             {
                 'feed_id': 1,
@@ -107,6 +145,33 @@ class TestQueries:
                 'is_read': False
             },
         ]
+        for folder in self.init_folders:
+            self.query.add_folder(folder)
+        for feed in self.init_feeds:
+            self.query.add_feed(**feed)
+        for item in self.init_items:
+            self.query.add_item(**item)
+        """
+        self.query.save()
+
+    @classmethod
+    def setup_class(self):
+        """ setup any state specific to the execution of the given class (which
+        usually contains tests).
+        """
+        # base_path = os.path.abspath(os.path.dirname(__file__))
+        # db_path = os.path.dirname(base_path)
+        # self.src_db_file = os.path.join(db_path, 'rss.sqlite')
+        # self.bak_db_file = os.path.join(db_path, 'rss.sqlite.bak')
+        #
+        # if os.path.exists(self.src_db_file):
+        #     self.need_recover = True
+        #     shutil.copy(self.src_db_file, self.bak_db_file)
+        #     os.remove(self.src_db_file)
+        # else:
+        #     self.need_recover = False
+        self.query = QueryRss()
+        self.query.set_test_db(rss_engi, rss_sess, rss_base)
         self.init_test_data(self)
 
     @classmethod
@@ -114,10 +179,28 @@ class TestQueries:
         """ teardown any state that was previously setup with a call to
         setup_class.
         """
-        if self.need_recover:
-            shutil.copy(self.bak_db_file, self.src_db_file)
-            os.remove(self.bak_db_file)
+        # if self.need_recover:
+        #     shutil.copy(self.bak_db_file, self.src_db_file)
+        #     os.remove(self.bak_db_file)
 
+    def test_add_folder(self):
+        # add "New Folder" in first level
+        folder_name1 = "New Folder1"
+        self.query.add(folder_name1)
+        folder_name2 = "New Folder2"
+        self.query.add(folder_name1)
+
+        known_value = self.init_folders + [new_folder_name, ]
+
+        self.query.add_folder(new_folder_name)
+        self.query.save()
+        rows = self.query.folder_rows()
+        result = [row.name for row in rows]
+
+        self.init_data()
+        assert result == known_value
+
+    """
     def test_feed_rows(self):
         known_value = self.init_feeds
         rows = self.query.feed_rows()
@@ -157,15 +240,7 @@ class TestQueries:
         result = self.query.folder_name(index + 1)
         assert result == known_value
 
-    def test_add_folder(self):
-        new_folder_name = 'IT'
-        known_value = self.init_folders + [new_folder_name, ]
-        self.query.add_folder(new_folder_name)
-        self.query.save()
-        rows = self.query.folder_rows()
-        result = [row.name for row in rows]
-        self.init_test_data()
-        assert result == known_value
+
 
     def test_add_feed(self):
         new_feed = dict(
@@ -283,13 +358,6 @@ class TestQueries:
         result = (result1, result2, result3)
         assert result == known_value
 
-    def test_items_query(self):
-        """
-        Need not test items_query, it is include in items()
-        :return: 
-        """
-        pass
-
     def test_is_item_existed(self):
         item = self.init_items[0]
         known_value = [True, False]
@@ -315,3 +383,4 @@ class TestQueries:
         result = feed.title
         self.init_test_data()
         assert result == known_value
+    """
