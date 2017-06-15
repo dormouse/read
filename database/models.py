@@ -7,7 +7,7 @@ from sqlalchemy.dialects.sqlite import INTEGER, TEXT, DATETIME, BOOLEAN
 from sqlalchemy.orm import column_property, relationship
 from sqlalchemy.sql import func
 from sqlalchemy import and_
-from .database import book_base, rss_base
+from database.database import book_base, rss_base
 
 
 class BookJob(book_base):
@@ -66,7 +66,7 @@ class Node(rss_base):
 
 
 class RssCommand(rss_base):
-    __tablename__ = 'rss_commander'
+    __tablename__ = 'rss_command'
     id = Column(INTEGER, primary_key=True)
     name = Column(TEXT)
     command = Column(TEXT)

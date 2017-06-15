@@ -3,7 +3,7 @@ import os
 import feedparser
 
 from database.database import rss_sess, rss_base, rss_engi
-from database.models import Node, RssFeed, RssFolder, RssItem
+from database.models import Node, RssFeed, RssFolder, RssItem, RssCommand
 from pyqt_win.parser import ItemParser
 import project_conf
 
@@ -21,11 +21,6 @@ class QueryRss(object):
         self.log = project_conf.LOG
         self.cache_path = os.path.join(FULLPATH, 'cache')
         self.default_item_index_file = 'index.html'
-
-    def set_test_db(self, engi, sess, base):
-        self.engi = rss_engi
-        self.sess = rss_sess
-        self.base = rss_base
 
     def feed_rows(self, folder_id=None):
         if folder_id:
@@ -75,11 +70,11 @@ class QueryRss(object):
         return folder_id
 
     def category_class(self, category):
-        categories = ['node', 'folder', 'feed', 'item']
+        categories = ['node', 'folder', 'feed', 'item', 'command']
         if category not in categories:
             self.log.error(
                 "category error: {} not in ['node', 'folder', "
-                "'feed', 'item']".format(category)
+                "'feed', 'item', 'command']".format(category)
             )
             return None
         if category == 'item':
@@ -90,10 +85,12 @@ class QueryRss(object):
             obj_class = RssFolder
         elif category == 'node':
             obj_class = Node
+        elif category == 'command':
+            obj_class = RssCommand
         return obj_class
 
-    def add_data(self, category, **kwargs):
-        obj_class = self.category_class(category)
+    def add_data(self, category_text, **kwargs):
+        obj_class = self.category_class(category_text)
         if obj_class:
             obj = obj_class()
             for k, v in kwargs.items():
