@@ -136,7 +136,8 @@ class MainWindow(QMainWindow):
         self.timer = QTimer()
 
         if project_conf.DEBUG:
-            self.make_debug_database()
+            # self.make_debug_database()
+            self.check_database()
         else:
             self.check_database()
         self.create_tree_menu()

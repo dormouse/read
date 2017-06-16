@@ -8,7 +8,7 @@ from PyQt5.QtWidgets import QApplication, QTreeView
 from sqlalchemy import desc
 
 import project_conf
-from database.models import RssItem
+from database.models import RssItem, RssFeed, RssFolder, RssCommand, Node
 from pyqt_win.queries import QueryRss
 from yttools import SqlModel
 
@@ -336,6 +336,12 @@ class TreeModel(QAbstractItemModel):
         self.rootItem = TreeItem(root_item_data)
 
         # command
+        kwargs = dict(parent_id=None)
+        query = self.query.read_data('node', **kwargs)
+        rows = query.order_by(Node.id).all()
+        for row in rows:
+            if row.category == 'command':
+
         datas = [
             {
                 'text': 'ALL',

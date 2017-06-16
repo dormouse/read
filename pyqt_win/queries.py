@@ -185,23 +185,38 @@ class QueryRss(object):
     def init_database(self):
         self.base.metadata.create_all(self.engi)
         # some default rss feed
-        self.add_folder('default')
-        feeds = [
-            dict(
-                title='少数派',
-                folder_id=1,
-                url='http://sspai.me/feed'
-            ),
-            dict(
-                title='Mac玩儿法',
-                folder_id=1,
-                url='http://www.waerfa.com/feed'
-            ),
-
+        command_datas = [
+            dict(name="ALL",
+                 command="load_all_items"),
         ]
-        for feed in feeds:
-            self.add_feed(**feed)
-            self.save()
+        folder_datas = [
+            dict(name="Apple"),
+        ]
+        feed_datas = [
+            dict(title='少数派', url='http://sspai.me/feed'),
+            dict(title='Mac玩儿法', url='http://www.waerfa.com/feed'),
+            dict(title='SMZDM', url='http://feed.smzdm.com'),
+        ]
+        node_datas = [
+            dict(parent_id=None, category='command',
+                 data_id=1, rank=0),
+            dict(parent_id=None, category='folder',
+                 data_id=1, rank=0),
+            dict(parent_id=2, category='feed',
+                 data_id=1, rank=0),
+            dict(parent_id=2, category='feed',
+                 data_id=2, rank=1),
+        ]
+
+        for data in command_datas:
+            self.add_data('command', **data)
+        for data in folder_datas:
+            self.add_data('folder', **data)
+        for data in feed_datas:
+            self.add_data('feed', **data)
+        for data in node_datas:
+            self.add_data('node', **data)
+        self.save()
 
     def update_feed(self, feed_id):
         feed = self.feed_row(id=feed_id)
