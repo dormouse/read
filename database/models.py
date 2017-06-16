@@ -68,7 +68,7 @@ class Node(rss_base):
 class RssCommand(rss_base):
     __tablename__ = 'rss_command'
     id = Column(INTEGER, primary_key=True)
-    name = Column(TEXT)
+    title = Column(TEXT)
     command = Column(TEXT)
 
     def __repr__(self):
@@ -78,7 +78,7 @@ class RssCommand(rss_base):
 class RssFolder(rss_base):
     __tablename__ = 'rss_folder'
     id = Column(INTEGER, primary_key=True)
-    name = Column(TEXT)
+    title = Column(TEXT)
 
     def __repr__(self):
         return "folder:{}".format(self.name)

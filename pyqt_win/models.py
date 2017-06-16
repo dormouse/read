@@ -79,9 +79,7 @@ class TreeItem(object):
 
         self.parentItem = parent
         self.childItems = []
-        self.data = None
-        if data:
-            self.set_data(data)
+        self.data = data
 
     def append_child(self, item):
         self.childItems.append(item)
@@ -129,14 +127,14 @@ class TreeModel(QAbstractItemModel):
         super(TreeModel, self).__init__(parent)
         self.log = project_conf.LOG
 
-        self.rootItem = None
-        self.header_info = ['text', 'unread']
+        self.rootItem = TreeItem()
+        self.header_info = ['title', 'unread']
         self.query = QueryRss()
         self.read_font = None
         self.unread_font = None
 
         self.init_model_data()
-        self.update_unread_count()
+        # self.update_unread_count()
 
     def set_read_font(self, font):
         self.read_font = font
@@ -158,6 +156,12 @@ class TreeModel(QAbstractItemModel):
         if role == Qt.FontRole:
             return self.unread_font if item.unread else self.read_font
         if item.data:
+            kwargs = {'id': item.data.data_id}
+            query = self.query.read_data(item.data.category, **kwargs )
+            if query:
+                row = query.one()
+                datas =
+                datas = [item.data.]
             return item.data.get(self.header_info[index.column()])
         else:
             return None
@@ -327,61 +331,24 @@ class TreeModel(QAbstractItemModel):
 
     def init_model_data(self):
         self.beginResetModel()
-        root_item_data = {
-            'text': 'root',
-            'type': None,
-            'user_data': None,
-            'unread': 'unread'
-        }
-        self.rootItem = TreeItem(root_item_data)
-
-        # command
-        kwargs = dict(parent_id=None)
-        query = self.query.read_data('node', **kwargs)
-        rows = query.order_by(Node.id).all()
-        for row in rows:
-            if row.category == 'command':
-
-        datas = [
-            {
-                'text': 'ALL',
-                'type': 'command',
-                'user_data': 'load_all_items',
-                'unread': 0
-            },
-        ]
-        for data in datas:
-            self.rootItem.append_child(TreeItem(data, self.rootItem))
-
-        # folder
-        rows = self.query.folder_rows()
-        for row in rows:
-            data = {
-                'text': row.name,
-                'type': 'folder',
-                'user_data': row.id,
-                'unread': 0
-            }
-            item = TreeItem(data, self.rootItem)
-            self.rootItem.append_child(item)
-            self.init_model_data_feed(item, row.id)
-
+        self.init_model_data_sub()
         self.endResetModel()
 
         # update unread count
-        self.update_unread_count()
+        # self.update_unread_count()
 
-    def init_model_data_feed(self, parent_item, folder_id):
-        rows = self.query.feed_rows(folder_id)
+    def init_model_data_sub(self, parent_item=None):
+        if parent_item:
+            parent_id = parent_item.data.id
+        else:
+            parent_id = None
+        kwargs = dict(parent_id=parent_id)
+        query = self.query.read_data('node', **kwargs)
+        rows = query.order_by(Node.id).all()
         for row in rows:
-            data = {
-                'text': row.title,
-                'type': 'feed',
-                'user_data': row.id,
-                'unread': 0
-            }
-            item = TreeItem(data, parent_item)
-            parent_item.append_child(item)
+            item = TreeItem(row, self.rootItem)
+            self.rootItem.append_child(TreeItem(row, self.rootItem))
+            self.init_model_data_sub(item)
 
     def update_unread_count(self):
         for child in self.rootItem.childItems:

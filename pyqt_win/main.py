@@ -136,8 +136,7 @@ class MainWindow(QMainWindow):
         self.timer = QTimer()
 
         if project_conf.DEBUG:
-            # self.make_debug_database()
-            self.check_database()
+            self.make_debug_database()
         else:
             self.check_database()
         self.create_tree_menu()
@@ -577,11 +576,16 @@ class MainWindow(QMainWindow):
         self.tree_menu.model().update_unread_count()
 
     def make_debug_database(self):
+        import shutil
         target_db = os.path.join(self.project_path, 'database', 'rss.sqlite')
         debug_db = os.path.join(self.project_path, 'database',
                                 'rss_back.sqlite')
-        import shutil
-        shutil.copy(debug_db, target_db)
+        if os.path.exists(debug_db):
+            shutil.copy(debug_db, target_db)
+        else:
+            self.check_database()
+            shutil.copy(target_db, debug_db)
+
         self.log.debug('debug database ready')
 
     def item_list_view_current_changed(self, curr_index, prev_index):
