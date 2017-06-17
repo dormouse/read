@@ -63,9 +63,9 @@ class TreeMenu(QTreeView):
         item = self.current_item()
         model = self.model()
 
-        item_category = item.node.category
-        item_title = model.get_title(item)
-        item_unread_count = model.get_unread_count(item)
+        item_category = model.read_item(item, 'category')
+        item_title = model.read_item(item, 'title')
+        item_unread_count = model.read_item(item, 'unread')
 
         if item_category == 'command' and item_title == 'load_all_items':
             act = acts['mark_all_feeds_read']

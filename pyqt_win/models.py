@@ -8,11 +8,10 @@ from PyQt5.QtWidgets import QApplication, QTreeView
 from sqlalchemy import desc
 
 import project_conf
-from database.models import RssItem, RssFeed, RssFolder, RssCommand, Node
+from database.database import rss_sess
+from database.models import RssItem, Node
 from pyqt_win.queries import QueryRss
 from yttools import SqlModel
-from database.database import rss_sess, rss_base, rss_engi
-from pyqt_win.parser import ItemParser
 
 
 class ItemListModel(SqlModel):
@@ -144,7 +143,6 @@ class TreeModel(QAbstractItemModel):
         self.unread_font = None
 
         self.init_model_data()
-        # self.update_unread_count()
 
     def set_read_font(self, font):
         self.read_font = font
@@ -350,9 +348,6 @@ class TreeModel(QAbstractItemModel):
         self.init_model_data_sub()
         self.endResetModel()
 
-        # update unread count
-        # self.update_unread_count()
-
     def init_model_data_sub(self, parent_item=None):
         if parent_item:
             parent_id = parent_item.node.id
@@ -367,29 +362,23 @@ class TreeModel(QAbstractItemModel):
             parent_item.append_child(item)
             self.init_model_data_sub(item)
 
-    def get_title(self, item):
-        category = item.node.category
-        data_id = item.node.data_id
-        row = self.query.category_query(category). \
-            filter_by(id=data_id).one()
-        title = row.title
-        return title
-
-    def get_unread_count(self, item):
-        column = self.header_info.index('unread')
-        return item.data[column]
+    def read_item(self, item, key):
+        if key == 'title':
+            column = self.header_info.index('title')
+            return item.data[column]
+        if key == 'unread':
+            column = self.header_info.index('unread')
+            return item.data[column]
+        if key == 'category':
+            return item.node.category
 
     def get_node_row_data(self, node_row):
         cate_query = self.query.category_query(node_row.category)
-        item_query = self.query.category_query('item'). \
-            filter_by(is_read=False)
+        item_query = self.query.category_query('item').filter_by(is_read=False)
         row = cate_query.filter_by(id=node_row.data_id).one()
         title = row.title
         if node_row.category == 'command' and title == 'ALL':
-            return dict(
-                title=title,
-                count=item_query.count()
-            )
+            return dict(title=title, unread=item_query.count())
         if node_row.category == 'feed':
             item_query = item_query.filter_by(feed_id=row.id)
             count = item_query.count()
@@ -416,6 +405,7 @@ class TreeModel(QAbstractItemModel):
             item = parent_item.child(index)
             if item.data != data:
                 item.set_data(data)
+                item.set_node(row)
                 parent_index = self.item_to_index(parent_item)
                 col_count = len(self.header_info)
                 top_left_index = self.index(index, 0, parent_index)
