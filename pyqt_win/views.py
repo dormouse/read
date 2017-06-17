@@ -61,24 +61,25 @@ class TreeMenu(QTreeView):
         menu = QMenu(self)
         acts = self.window().action_list
         item = self.current_item()
-        item_type = item.type
-        item_user_data = item.user_data
-        item_unread_count = item.unread
-        item_text = item.text
+        model = self.model()
 
-        if item_type == 'command' and item_user_data == 'load_all_items':
+        item_category = item.node.category
+        item_title = model.get_title(item)
+        item_unread_count = model.get_unread_count(item)
+
+        if item_category == 'command' and item_title == 'load_all_items':
             act = acts['mark_all_feeds_read']
             menu.addAction(act)
 
-        if item_type == 'folder':
+        if item_category == 'folder':
             # mark read
             if item_unread_count:
                 act = acts['mark_feeds_read']
-                act.setText('Mark "{}" Read'.format(item_text))
+                act.setText('Mark "{}" Read'.format(item_title))
                 menu.addAction(act)
             # update all feeds in folder
             act = acts['update_feeds']
-            act.setText('Update All Feeds in "{}"'.format(item_text))
+            act.setText('Update All Feeds in "{}"'.format(item_title))
             menu.addAction(act)
             # change folder name
             act = acts['modi_folder']
@@ -87,15 +88,15 @@ class TreeMenu(QTreeView):
             act = acts['delete_folder']
             menu.addAction(act)
 
-        if item_type == 'feed':
+        if item_category == 'feed':
             # mark read
             if item_unread_count:
                 act = acts['mark_feeds_read']
-                act.setText('Mark "{}" Read'.format(item_text))
+                act.setText('Mark "{}" Read'.format(item_title))
                 menu.addAction(act)
             # update feeds
             act = acts['update_feeds']
-            act.setText('Update "{}"'.format(item_text))
+            act.setText('Update "{}"'.format(item_title))
             menu.addAction(act)
             # modify feed
             act = acts['modi_feed']

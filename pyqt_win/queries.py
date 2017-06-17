@@ -89,6 +89,13 @@ class QueryRss(object):
             obj_class = RssCommand
         return obj_class
 
+    def category_query(self, category):
+        query = None
+        obj_class = self.category_class(category)
+        if obj_class:
+            query = self.sess.query(obj_class)
+        return query
+
     def add_data(self, category_text, **kwargs):
         obj_class = self.category_class(category_text)
         if obj_class:
@@ -186,11 +193,11 @@ class QueryRss(object):
         self.base.metadata.create_all(self.engi)
         # some default rss feed
         command_datas = [
-            dict(name="ALL",
+            dict(title="ALL",
                  command="load_all_items"),
         ]
         folder_datas = [
-            dict(name="Apple"),
+            dict(title="Apple"),
         ]
         feed_datas = [
             dict(title='少数派', url='http://sspai.me/feed'),
@@ -201,11 +208,13 @@ class QueryRss(object):
             dict(parent_id=None, category='command',
                  data_id=1, rank=0),
             dict(parent_id=None, category='folder',
-                 data_id=1, rank=0),
+                 data_id=1, rank=1),
             dict(parent_id=2, category='feed',
                  data_id=1, rank=0),
             dict(parent_id=2, category='feed',
                  data_id=2, rank=1),
+            dict(parent_id=None, category='feed',
+                 data_id=3, rank=2),
         ]
 
         for data in command_datas:
@@ -261,7 +270,7 @@ class QueryRss(object):
                     f.write(item_html)
                 # save item datas to db
                 data['content'] = item_dir
-                self.add_item(**db_data)
+                self.add_data('item', **db_data)
                 need_save = True
         if need_save:
             self.save()

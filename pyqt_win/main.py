@@ -492,10 +492,16 @@ class MainWindow(QMainWindow):
         load items in items list view
         :return:
         """
-        query = None
         item = self.tree_menu.current_item()
-        self.log.debug(type(item))
         if item:
+            query = self.tree_menu.model().make_list_view_query(item)
+        if query:
+            self.item_list_view.model().setQuery(query)
+        """
+        item = self.tree_menu.current_item()
+        if item:
+            model = self.tree_menu.model()
+            node = model.get_node(item)
             item_type = item.type
             item_data = item.user_data
             if item_type == 'command':
@@ -508,6 +514,7 @@ class MainWindow(QMainWindow):
 
         if query:
             self.item_list_view.model().setQuery(query)
+        """
 
     def show_item_content(self, index):
         """
@@ -573,7 +580,7 @@ class MainWindow(QMainWindow):
         model.dataChanged.emit(top_left_index, bot_right_index)
 
         # update treeview
-        self.tree_menu.model().update_unread_count()
+        self.tree_menu.model().update_model_data()
 
     def make_debug_database(self):
         import shutil
@@ -597,7 +604,7 @@ class MainWindow(QMainWindow):
 
     def update_feeds_end(self):
         self.thread.quit()
-        self.tree_menu.model().update_unread_count()
+        self.tree_menu.model().update_model_data()
         self.load_items()
         self.statusBar().showMessage('Update done.')
 

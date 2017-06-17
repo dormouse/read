@@ -11,6 +11,8 @@ import project_conf
 from database.models import RssItem, RssFeed, RssFolder, RssCommand, Node
 from pyqt_win.queries import QueryRss
 from yttools import SqlModel
+from database.database import rss_sess, rss_base, rss_engi
+from pyqt_win.parser import ItemParser
 
 
 class ItemListModel(SqlModel):
@@ -74,12 +76,12 @@ class ItemListModel(SqlModel):
 
 
 class TreeItem(object):
-    def __init__(self, data=None, parent=None):
+    def __init__(self, node=None, data=None, parent=None):
         self.log = project_conf.LOG
-
         self.parentItem = parent
         self.childItems = []
         self.data = data
+        self.node = node
 
     def append_child(self, item):
         self.childItems.append(item)
@@ -101,6 +103,13 @@ class TreeItem(object):
             self.childItems.pop(start)
         return True
 
+    def children(self):
+        items = []
+        items += self.childItems
+        for item in self.childItems:
+            items += item.children()
+        return items
+
     def child(self, row):
         return self.childItems[row]
 
@@ -116,16 +125,17 @@ class TreeItem(object):
         return 0
 
     def set_data(self, data):
-        # todo: check data keys
         self.data = data
-        for k, v in data.items():
-            setattr(self, k, v)
+
+    def set_node(self, node):
+        self.node = node
 
 
 class TreeModel(QAbstractItemModel):
     def __init__(self, parent=None):
         super(TreeModel, self).__init__(parent)
         self.log = project_conf.LOG
+        self.sess = rss_sess
 
         self.rootItem = TreeItem()
         self.header_info = ['title', 'unread']
@@ -155,14 +165,9 @@ class TreeModel(QAbstractItemModel):
         item = index.internalPointer()
         if role == Qt.FontRole:
             return self.unread_font if item.unread else self.read_font
+
         if item.data:
-            kwargs = {'id': item.data.data_id}
-            query = self.query.read_data(item.data.category, **kwargs )
-            if query:
-                row = query.one()
-                datas =
-                datas = [item.data.]
-            return item.data.get(self.header_info[index.column()])
+            return item.data[index.column()]
         else:
             return None
 
@@ -192,6 +197,17 @@ class TreeModel(QAbstractItemModel):
             return self.createIndex(row, column, childItem)
         else:
             return QModelIndex()
+
+    def make_list_view_query(self, item):
+        all_items = [item] + item.children()
+        feed_ids = []
+        for item in all_items:
+            feed_id = self.sess.query(Node.data_id). \
+                filter_by(id=item.node.id).scalar()
+            feed_ids.append(feed_id)
+        query = self.sess.query(RssItem). \
+            filter(RssItem.feed_id.in_(feed_ids))
+        return query
 
     def parent(self, index):
         if not index.isValid():
@@ -327,7 +343,7 @@ class TreeModel(QAbstractItemModel):
 
         # remove model item
         self.removeRow(index.row(), index.parent())
-        self.update_unread_count()
+        self.update_model_data()
 
     def init_model_data(self):
         self.beginResetModel()
@@ -339,55 +355,73 @@ class TreeModel(QAbstractItemModel):
 
     def init_model_data_sub(self, parent_item=None):
         if parent_item:
-            parent_id = parent_item.data.id
+            parent_id = parent_item.node.id
         else:
+            parent_item = self.rootItem
             parent_id = None
-        kwargs = dict(parent_id=parent_id)
-        query = self.query.read_data('node', **kwargs)
-        rows = query.order_by(Node.id).all()
+        rows = self.sess.query(Node).filter_by(parent_id=parent_id).all()
         for row in rows:
-            item = TreeItem(row, self.rootItem)
-            self.rootItem.append_child(TreeItem(row, self.rootItem))
+            row_data = self.get_node_row_data(row)
+            data = [row_data.get(col) for col in self.header_info]
+            item = TreeItem(row, data, parent_item)
+            parent_item.append_child(item)
             self.init_model_data_sub(item)
 
-    def update_unread_count(self):
-        for child in self.rootItem.childItems:
-            self.update_unread_count_item(child)
-            if child.type == 'folder':
-                for feed in child.childItems:
-                    self.update_unread_count_item(feed)
+    def get_title(self, item):
+        category = item.node.category
+        data_id = item.node.data_id
+        row = self.query.category_query(category). \
+            filter_by(id=data_id).one()
+        title = row.title
+        return title
 
-    def update_unread_count_item(self, item):
-        unread = 0
+    def get_unread_count(self, item):
+        column = self.header_info.index('unread')
+        return item.data[column]
 
-        if item.type == 'command':
-            if item.user_data == 'load_all_items':
-                unread = self.query.items_count(is_read=False)
-        if item.type == 'feed':
-            unread = self.query.items_count(is_read=False,
-                                            feed_id=item.user_data)
-        if item.type == 'folder':
-            unread = self.query.items_count(is_read=False,
-                                            folder_id=item.user_data)
+    def get_node_row_data(self, node_row):
+        cate_query = self.query.category_query(node_row.category)
+        item_query = self.query.category_query('item'). \
+            filter_by(is_read=False)
+        row = cate_query.filter_by(id=node_row.data_id).one()
+        title = row.title
+        if node_row.category == 'command' and title == 'ALL':
+            return dict(
+                title=title,
+                count=item_query.count()
+            )
+        if node_row.category == 'feed':
+            item_query = item_query.filter_by(feed_id=row.id)
+            count = item_query.count()
+        else:
+            count = 0
 
-        if item.unread != unread:
-            # update item data
-            data = item.data
-            data['unread'] = unread
-            item.set_data(data)
-            # Follow line is wrong!!
-            # item.unread = unread
+        children = self.sess.query(Node).filter_by(parent_id=node_row.id)
+        for child in children:
+            child_row_data = self.get_node_row_data(child)
+            count += child_row_data.get('unread', 0)
 
-            # emit signal
-            if item.parent() == self.rootItem:
-                parent_index = QModelIndex()
-            else:
-                parent_index = self.index(item.parent().row(), 0, QModelIndex())
-            row = item.row()
-            col_count = self.columnCount(parent_index)
-            top_left_index = self.index(row, 0, parent_index)
-            bot_right_index = self.index(row, col_count - 1, parent_index)
-            self.dataChanged.emit(top_left_index, bot_right_index)
+        return dict(title=title, unread=count)
+
+    def update_model_data(self, parent_item=None):
+        if parent_item:
+            parent_id = parent_item.node.id
+        else:
+            parent_item = self.rootItem
+            parent_id = None
+        rows = self.sess.query(Node).filter_by(parent_id=parent_id).all()
+        for index, row in enumerate(rows):
+            row_data = self.get_node_row_data(row)
+            data = [row_data.get(col) for col in self.header_info]
+            item = parent_item.child(index)
+            if item.data != data:
+                item.set_data(data)
+                parent_index = self.item_to_index(parent_item)
+                col_count = len(self.header_info)
+                top_left_index = self.index(index, 0, parent_index)
+                bot_right_index = self.index(index, col_count - 1, parent_index)
+                self.dataChanged.emit(top_left_index, bot_right_index)
+            self.update_model_data(item)
 
 
 if __name__ == '__main__':

@@ -72,7 +72,7 @@ class RssCommand(rss_base):
     command = Column(TEXT)
 
     def __repr__(self):
-        return "Commander:{}".format(self.name)
+        return "Commander:{}".format(self.title)
 
 
 class RssFolder(rss_base):
@@ -81,7 +81,7 @@ class RssFolder(rss_base):
     title = Column(TEXT)
 
     def __repr__(self):
-        return "folder:{}".format(self.name)
+        return "folder:{}".format(self.title)
 
 
 class RssFeed(rss_base):
