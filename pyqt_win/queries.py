@@ -117,6 +117,31 @@ class QueryRss(object):
         else:
             return None
 
+    def read_node_children_rows(self, parent_id):
+        kwargs = dict(parent_id=parent_id)
+        node_rows = self.read_data('node', **kwargs).all()
+        return node_rows
+
+    def read_node_row_data(self, node_row):
+        cate_query = self.category_query(node_row.category)
+        row = cate_query.filter_by(id=node_row.data_id).one()
+        item_query = self.category_query('item').filter_by(is_read=False)
+        title = row.title
+        if node_row.category == 'command' and title == 'ALL':
+            return dict(title=title, unread=item_query.count())
+        if node_row.category == 'feed':
+            item_query = item_query.filter_by(feed_id=row.id)
+            unread_count = item_query.count()
+        else:
+            unread_count = 0
+
+        children = self.sess.query(Node).filter_by(parent_id=node_row.id)
+        for child in children:
+            child_row_data = self.get_node_row_data(child)
+            unread_count += child_row_data.get('unread', 0)
+
+        return dict(title=title, unread=unread_count)
+
     def modi_data(self, category, filter_value, new_value):
         query = self.read_data(category, **filter_value)
         if query:

@@ -75,17 +75,16 @@ class ItemListModel(SqlModel):
 
 
 class TreeItem(object):
-    def __init__(self, node=None, data=None, parent=None):
+    def __init__(self, data=None, parent=None):
         self.log = project_conf.LOG
         self.parentItem = parent
         self.childItems = []
         self.data = data
-        self.node = node
 
     def append_child(self, item):
         self.childItems.append(item)
 
-    def insertChildren(self, position, count):
+    def insert_children(self, position, count):
         if position < 0 or position > len(self.childItems):
             return False
 
@@ -95,7 +94,7 @@ class TreeItem(object):
 
         return True
 
-    def removeChildren(self, start, count):
+    def remove_children(self, start, count):
         if start < 0 or start + count > len(self.childItems):
             return False
         for i in range(count):
@@ -125,9 +124,6 @@ class TreeItem(object):
 
     def set_data(self, data):
         self.data = data
-
-    def set_node(self, node):
-        self.node = node
 
 
 class TreeModel(QAbstractItemModel):
@@ -165,9 +161,10 @@ class TreeModel(QAbstractItemModel):
             return self.unread_font if item.unread else self.read_font
 
         if item.data:
-            return item.data[index.column()]
-        else:
-            return None
+            item_data_source_name = self.header_info[index.column()]
+            return item.data.get(item_data_source_name)
+
+        return None
 
     def flags(self, index):
         if not index.isValid():
@@ -243,14 +240,14 @@ class TreeModel(QAbstractItemModel):
     def removeRows(self, start, count, parent=QModelIndex()):
         parent_item = self.index_to_item(parent)
         self.beginRemoveRows(parent, start, start + count - 1)
-        success = parent_item.removeChildren(start, count)
+        success = parent_item.remove_children(start, count)
         self.endRemoveRows()
         return success
 
     def insertRows(self, start, count, parent=QModelIndex()):
         parentItem = self.index_to_item(parent)
         self.beginInsertRows(parent, start, start + count - 1)
-        success = parentItem.insertChildren(start, count)
+        success = parentItem.insert_children(start, count)
         self.endInsertRows()
         return success
 
@@ -354,11 +351,10 @@ class TreeModel(QAbstractItemModel):
         else:
             parent_item = self.rootItem
             parent_id = None
-        rows = self.sess.query(Node).filter_by(parent_id=parent_id).all()
-        for row in rows:
-            row_data = self.get_node_row_data(row)
-            data = [row_data.get(col) for col in self.header_info]
-            item = TreeItem(row, data, parent_item)
+        node_rows = self.query.read_node_children_rows(parent_id)
+        for node_row in node_rows:
+            data = self.query.read_node_row_data(node_row)
+            item = TreeItem(data, parent_item)
             parent_item.append_child(item)
             self.init_model_data_sub(item)
 
@@ -371,26 +367,6 @@ class TreeModel(QAbstractItemModel):
             return item.data[column]
         if key == 'category':
             return item.node.category
-
-    def get_node_row_data(self, node_row):
-        cate_query = self.query.category_query(node_row.category)
-        item_query = self.query.category_query('item').filter_by(is_read=False)
-        row = cate_query.filter_by(id=node_row.data_id).one()
-        title = row.title
-        if node_row.category == 'command' and title == 'ALL':
-            return dict(title=title, unread=item_query.count())
-        if node_row.category == 'feed':
-            item_query = item_query.filter_by(feed_id=row.id)
-            count = item_query.count()
-        else:
-            count = 0
-
-        children = self.sess.query(Node).filter_by(parent_id=node_row.id)
-        for child in children:
-            child_row_data = self.get_node_row_data(child)
-            count += child_row_data.get('unread', 0)
-
-        return dict(title=title, unread=count)
 
     def update_model_data(self, parent_item=None):
         if parent_item:
