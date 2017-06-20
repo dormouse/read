@@ -12,7 +12,7 @@ from pyqt_win.queries import QueryRss
 import datetime
 from sqlalchemy import Column, ForeignKey
 from sqlalchemy.dialects.sqlite import INTEGER, TEXT, DATETIME, BOOLEAN
-from sqlalchemy.orm import column_property, relationship
+from sqlalchemy.orm import column_property, relationship, backref
 from sqlalchemy.sql import func
 from sqlalchemy import and_
 
@@ -23,7 +23,9 @@ class Node(rss_base):
     id = Column(INTEGER, primary_key=True)
     parent_id = Column(INTEGER, ForeignKey('node.id'))
     category = Column(TEXT)
-    children = relationship("Node")
+    children = relationship("Node",
+                            backref=backref('parent', remote_side=[id])
+                            )
     data_id = Column(INTEGER)  # RssAction.id or RssFolder.id or RssFeed.id
     rank = Column(INTEGER)  # rank for display in tree
 
@@ -201,38 +203,22 @@ class MyQueryRss(QueryRss):
         ]
 
         node_datas = [
-            dict(parent_id=None, category='command',
-                 data_id=1, rank=0),
-            dict(parent_id=None, category='command',
-                 data_id=2, rank=1),
-            dict(parent_id=None, category='feed',
-                 data_id=1, rank=2),
-            dict(parent_id=None, category='feed',
-                 data_id=2, rank=3),
-            dict(parent_id=None, category='folder',
-                 data_id=1, rank=4),
-            dict(parent_id=5, category='feed',
-                 data_id=3, rank=0),
-            dict(parent_id=5, category='feed',
-                 data_id=4, rank=1),
-            dict(parent_id=5, category='feed',
-                 data_id=5, rank=2),
-            dict(parent_id=None, category='folder',
-                 data_id=2, rank=5),
-            dict(parent_id=9, category='folder',
-                 data_id=3, rank=0),
-            dict(parent_id=10, category='feed',
-                 data_id=6, rank=0),
-            dict(parent_id=10, category='feed',
-                 data_id=7, rank=1),
-            dict(parent_id=10, category='feed',
-                 data_id=8, rank=2),
-            dict(parent_id=9, category='folder',
-                 data_id=4, rank=1),
-            dict(parent_id=14, category='feed',
-                 data_id=9, rank=0),
-            dict(parent_id=14, category='feed',
-                 data_id=10, rank=1),
+            dict(parent_id=None, category='command', data_id=1, rank=0),
+            dict(parent_id=None, category='command', data_id=2, rank=1),
+            dict(parent_id=None, category='feed', data_id=1, rank=2),
+            dict(parent_id=None, category='feed', data_id=2, rank=3),
+            dict(parent_id=None, category='folder', data_id=1, rank=4),
+            dict(parent_id=5, category='feed', data_id=3, rank=0),
+            dict(parent_id=5, category='feed', data_id=4, rank=1),
+            dict(parent_id=5, category='feed', data_id=5, rank=2),
+            dict(parent_id=None, category='folder', data_id=2, rank=5),
+            dict(parent_id=9, category='folder', data_id=3, rank=0),
+            dict(parent_id=10, category='feed', data_id=6, rank=0),
+            dict(parent_id=10, category='feed', data_id=7, rank=1),
+            dict(parent_id=10, category='feed', data_id=8, rank=2),
+            dict(parent_id=9, category='folder', data_id=4, rank=1),
+            dict(parent_id=14, category='feed', data_id=9, rank=0),
+            dict(parent_id=14, category='feed', data_id=10, rank=1),
         ]
 
         for data in command_datas:
@@ -258,3 +244,7 @@ if __name__ == '__main__':
     n, f = row
     print(n.id)
     print(f.title)
+
+    new_query = sess.query(Node).filter_by(id=9)
+    row = new_query.first()
+    print(query.node_all_children(row))

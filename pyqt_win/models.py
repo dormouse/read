@@ -22,6 +22,12 @@ class ItemListModel(SqlModel):
         self.read_font = None
         self.unread_font = None
 
+    def reload(self, node_id):
+        query = QueryRss().node_items_query(node_id)
+        self.setQuery(query)
+
+
+
     def set_col_source(self, source):
         self.col_source = source
 
@@ -75,11 +81,12 @@ class ItemListModel(SqlModel):
 
 
 class TreeItem(object):
-    def __init__(self, data=None, parent=None):
+    def __init__(self, node_id=None, data=None, parent=None):
         self.log = project_conf.LOG
         self.parentItem = parent
         self.childItems = []
         self.data = data
+        self.id = node_id
 
     def append_child(self, item):
         self.childItems.append(item)
@@ -162,6 +169,7 @@ class TreeModel(QAbstractItemModel):
 
         if item.data:
             item_data_source_name = self.header_info[index.column()]
+            print(item.data)
             return item.data.get(item_data_source_name)
 
         return None
@@ -171,6 +179,10 @@ class TreeModel(QAbstractItemModel):
             return Qt.NoItemFlags
 
         return Qt.ItemIsEnabled | Qt.ItemIsSelectable
+
+    def get_node_id(self, index):
+        item = self.index_to_item(index)
+        return item.id
 
     def headerData(self, section, orientation, role=Qt.DisplayRole):
         if orientation == Qt.Horizontal and role == Qt.DisplayRole:
@@ -193,16 +205,7 @@ class TreeModel(QAbstractItemModel):
         else:
             return QModelIndex()
 
-    def make_list_view_query(self, item):
-        all_items = [item] + item.children()
-        feed_ids = []
-        for item in all_items:
-            feed_id = self.sess.query(Node.data_id). \
-                filter_by(id=item.node.id).scalar()
-            feed_ids.append(feed_id)
-        query = self.sess.query(RssItem). \
-            filter(RssItem.feed_id.in_(feed_ids))
-        return query
+
 
     def parent(self, index):
         if not index.isValid():
@@ -347,17 +350,18 @@ class TreeModel(QAbstractItemModel):
 
     def init_model_data_sub(self, parent_item=None):
         if parent_item:
-            parent_id = parent_item.node.id
+            parent_id = parent_item.id
         else:
             parent_item = self.rootItem
             parent_id = None
-        node_rows = self.query.read_node_children_rows(parent_id)
+        node_rows = self.query.node_children_rows(parent_id)
         for node_row in node_rows:
-            data = self.query.read_node_row_data(node_row)
-            item = TreeItem(data, parent_item)
+            data = self.query.node_row_data(node_row)
+            item = TreeItem(node_row.id, data, parent_item)
             parent_item.append_child(item)
             self.init_model_data_sub(item)
 
+    """
     def read_item(self, item, key):
         if key == 'title':
             column = self.header_info.index('title')
@@ -367,21 +371,21 @@ class TreeModel(QAbstractItemModel):
             return item.data[column]
         if key == 'category':
             return item.node.category
+    """
 
     def update_model_data(self, parent_item=None):
         if parent_item:
-            parent_id = parent_item.node.id
+            parent_id = parent_item.id
         else:
             parent_item = self.rootItem
             parent_id = None
         rows = self.sess.query(Node).filter_by(parent_id=parent_id).all()
         for index, row in enumerate(rows):
-            row_data = self.get_node_row_data(row)
-            data = [row_data.get(col) for col in self.header_info]
+            row_data = self.query.node_row_data(row)
+            # data = [row_data.get(col) for col in self.header_info]
             item = parent_item.child(index)
-            if item.data != data:
-                item.set_data(data)
-                item.set_node(row)
+            if item.data != row_data:
+                item.set_data(row_data)
                 parent_index = self.item_to_index(parent_item)
                 col_count = len(self.header_info)
                 top_left_index = self.index(index, 0, parent_index)

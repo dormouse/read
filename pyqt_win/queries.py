@@ -117,30 +117,65 @@ class QueryRss(object):
         else:
             return None
 
-    def read_node_children_rows(self, parent_id):
+    def node_all_children(self, node):
+        """
+        :param node: a database.models.Node object
+        :return:
+            all_children: a database.models.Node object list ,
+                          include all children of node recursively
+        """
+        all_children = node.children
+        for child in node.children:
+            all_children += self.node_all_children(child)
+        return all_children
+
+    def node_children_rows(self, parent_id):
         kwargs = dict(parent_id=parent_id)
         node_rows = self.read_data('node', **kwargs).all()
         return node_rows
 
-    def read_node_row_data(self, node_row):
+    def node_row_data(self, node_row):
         cate_query = self.category_query(node_row.category)
         row = cate_query.filter_by(id=node_row.data_id).one()
-        item_query = self.category_query('item').filter_by(is_read=False)
+        # title
         title = row.title
-        if node_row.category == 'command' and title == 'ALL':
-            return dict(title=title, unread=item_query.count())
-        if node_row.category == 'feed':
-            item_query = item_query.filter_by(feed_id=row.id)
-            unread_count = item_query.count()
+        # unread count
+        item_query = self.node_items_query(node_row.id)
+        item_query = item_query.filter_by(is_read=False)
+        unread = item_query.count()
+        # return data
+        data = dict(title=title, unread=unread)
+        return data
+
+    def node_items_query(self, node_id):
+        """
+
+        :param node_id:
+        :return: None or
+                 query of all RssItem object of node_id
+        """
+        row = self.sess.query(Node).filter_by(id=node_id).one()
+        if row.category == 'command':
+            command_row = self.sess.query(RssCommand). \
+                filter_by(id=row.data_id).one()
+            if command_row.title == 'ALL':
+                query = self.sess.query(RssItem)
+                return query
+            else:
+                return None
         else:
-            unread_count = 0
-
-        children = self.sess.query(Node).filter_by(parent_id=node_row.id)
-        for child in children:
-            child_row_data = self.get_node_row_data(child)
-            unread_count += child_row_data.get('unread', 0)
-
-        return dict(title=title, unread=unread_count)
+            # get all nodes include row and row's all children
+            nodes = [row, ]
+            nodes += self.node_all_children(row)
+            # get all feed ids
+            feed_ids = []
+            for node in nodes:
+                if node.category == 'feed':
+                    feed_ids.append(node.data_id)
+            # make query
+            query = self.sess.query(RssItem).filter(
+                RssItem.feed_id.in_(feed_ids))
+            return query
 
     def modi_data(self, category, filter_value, new_value):
         query = self.read_data(category, **filter_value)

@@ -492,12 +492,19 @@ class MainWindow(QMainWindow):
         load items in items list view
         :return:
         """
+        index = self.tree_menu.currentIndex()
+        if index.isValid():
+            node_id = self.tree_menu.model().get_node_id(index)
+            self.item_list_view.model().reload(node_id)
+
+        """
         item = self.tree_menu.current_item()
         if item:
             query = self.tree_menu.model().make_list_view_query(item)
         if query:
             self.item_list_view.model().setQuery(query)
-        """
+            
+            
         item = self.tree_menu.current_item()
         if item:
             model = self.tree_menu.model()
