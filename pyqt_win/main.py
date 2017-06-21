@@ -172,7 +172,10 @@ class MainWindow(QMainWindow):
             item_category = self.tree_model.read_item(item, 'category')
             if item_category == 'feed':
                 item = item.parent()
-            folder_id = self.tree_model.read_item(item, 'data_id')
+                if item != self.tree_model.rootItem:
+                    folder_id = self.tree_model.read_item(item, 'data_id')
+            if item_category == 'folder':
+                folder_id = self.tree_model.read_item(item, 'data_id')
         wizard = AddFeedWizard(folder_id)
         wizard.setWindowTitle("Add Feed Wizard")
         wizard.show()
