@@ -60,6 +60,7 @@ class TreeMenu(QTreeView):
         self.log.debug("context Menu Event")
         menu = QMenu(self)
         acts = self.window().action_list
+
         item = self.current_item()
         model = self.model()
 

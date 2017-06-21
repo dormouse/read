@@ -134,6 +134,9 @@ class QueryRss(object):
         node_rows = self.read_data('node', **kwargs).all()
         return node_rows
 
+    def node_row(self, node_id):
+        return self.sess.query(Node).filter_by(id=node_id).one()
+
     def node_row_data(self, node_row):
         cate_query = self.category_query(node_row.category)
         row = cate_query.filter_by(id=node_row.data_id).one()
@@ -154,7 +157,7 @@ class QueryRss(object):
         :return: None or
                  query of all RssItem object of node_id
         """
-        row = self.sess.query(Node).filter_by(id=node_id).one()
+        row = self.node_row(node_id)
         if row.category == 'command':
             command_row = self.sess.query(RssCommand). \
                 filter_by(id=row.data_id).one()
@@ -335,16 +338,23 @@ class QueryRss(object):
         if need_save:
             self.save()
 
-    def mark_read(self, **kwargs):
+    def mark_read(self, node_id=None):
         """
         mark items as read
-        :param all: if True mark all unread items
+        :param:
+            node_id: all items belong node_id will mark read
+                     if node_id is None, all unread item will mark read
         :return: True if has data changed
         """
-        kwargs['is_read'] = False
-        query = self.items_query(**kwargs)
+        self.log.debug("node_id:%d", node_id)
+        if node_id:
+            query = self.node_items_query(node_id)
+        else:
+            query = self.sess.query(RssItem)
+        query = query.filter_by(is_read=False)
+        self.log.debug("node count:%d", query.count())
         if query.count():
-            query.update({'is_read': True})
+            query.update({'is_read': True}, synchronize_session='fetch')
             self.save()
             return True
         else:

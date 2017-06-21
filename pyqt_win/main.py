@@ -493,35 +493,8 @@ class MainWindow(QMainWindow):
         :return:
         """
         index = self.tree_menu.currentIndex()
-        if index.isValid():
-            node_id = self.tree_menu.model().get_node_id(index)
-            self.item_list_view.model().reload(node_id)
-
-        """
-        item = self.tree_menu.current_item()
-        if item:
-            query = self.tree_menu.model().make_list_view_query(item)
-        if query:
-            self.item_list_view.model().setQuery(query)
-            
-            
-        item = self.tree_menu.current_item()
-        if item:
-            model = self.tree_menu.model()
-            node = model.get_node(item)
-            item_type = item.type
-            item_data = item.user_data
-            if item_type == 'command':
-                if item_data == 'load_all_items':
-                    query = self.query.items_query()
-            if item_type == 'feed':
-                query = self.query.items_query(feed_id=item_data)
-            if item_type == 'folder':
-                query = self.query.items_query(folder_id=item_data)
-
-        if query:
-            self.item_list_view.model().setQuery(query)
-        """
+        node_id = self.tree_menu.model().get_node_id(index)
+        self.item_list_view.model().reload(node_id)
 
     def show_item_content(self, index):
         """
@@ -553,16 +526,11 @@ class MainWindow(QMainWindow):
         if is_mark_all:
             data_changed = self.query.mark_read()
         else:
-            item = self.tree_menu.current_item()
-            if item:
-                if item.type == 'feed':
-                    data_changed = self.query.mark_read(
-                        feed_id=item.user_data)
-                if item.type == 'folder':
-                    data_changed = self.query.mark_read(
-                        folder_id=item.user_data)
+            index = self.tree_menu.currentIndex()
+            node_id = self.tree_menu.model().get_node_id(index)
+            data_changed = self.query.mark_read(node_id)
         if data_changed:
-            self.tree_menu.model().update_unread_count()
+            self.tree_menu.model().update_model_data()
             self.load_items()
 
     def mark_item_read(self):

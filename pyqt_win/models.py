@@ -181,8 +181,11 @@ class TreeModel(QAbstractItemModel):
         return Qt.ItemIsEnabled | Qt.ItemIsSelectable
 
     def get_node_id(self, index):
-        item = self.index_to_item(index)
-        return item.id
+        if index.isValid():
+            item = self.index_to_item(index)
+            return item.id
+        else:
+            return None
 
     def headerData(self, section, orientation, role=Qt.DisplayRole):
         if orientation == Qt.Horizontal and role == Qt.DisplayRole:
@@ -361,17 +364,15 @@ class TreeModel(QAbstractItemModel):
             parent_item.append_child(item)
             self.init_model_data_sub(item)
 
-    """
     def read_item(self, item, key):
         if key == 'title':
-            column = self.header_info.index('title')
-            return item.data[column]
+            return item.data.get(key)
         if key == 'unread':
-            column = self.header_info.index('unread')
-            return item.data[column]
+            return item.data.get(key)
         if key == 'category':
-            return item.node.category
-    """
+            node_id = item.id
+            row = self.query.node_row(node_id)
+            return row.category
 
     def update_model_data(self, parent_item=None):
         if parent_item:
