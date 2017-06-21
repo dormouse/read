@@ -26,8 +26,6 @@ class ItemListModel(SqlModel):
         query = QueryRss().node_items_query(node_id)
         self.setQuery(query)
 
-
-
     def set_col_source(self, source):
         self.col_source = source
 
@@ -81,12 +79,12 @@ class ItemListModel(SqlModel):
 
 
 class TreeItem(object):
-    def __init__(self, node_id=None, data=None, parent=None):
+    def __init__(self, parent=None, node_id=None, data=None):
         self.log = project_conf.LOG
         self.parentItem = parent
         self.childItems = []
         self.data = data
-        self.id = node_id
+        self.node_id = node_id
 
     def append_child(self, item):
         self.childItems.append(item)
@@ -96,7 +94,7 @@ class TreeItem(object):
             return False
 
         for row in range(count):
-            item = TreeItem(None, self)
+            item = TreeItem(self)
             self.childItems.insert(position, item)
 
         return True
@@ -109,6 +107,10 @@ class TreeItem(object):
         return True
 
     def children(self):
+        """
+        all children, include children of children
+        :return:
+        """
         items = []
         items += self.childItems
         for item in self.childItems:
@@ -131,6 +133,9 @@ class TreeItem(object):
 
     def set_data(self, data):
         self.data = data
+
+    def set_node_id(self, node_id):
+        self.node_id = node_id
 
 
 class TreeModel(QAbstractItemModel):
@@ -169,7 +174,6 @@ class TreeModel(QAbstractItemModel):
 
         if item.data:
             item_data_source_name = self.header_info[index.column()]
-            print(item.data)
             return item.data.get(item_data_source_name)
 
         return None
@@ -183,7 +187,7 @@ class TreeModel(QAbstractItemModel):
     def get_node_id(self, index):
         if index.isValid():
             item = self.index_to_item(index)
-            return item.id
+            return item.node_id
         else:
             return None
 
@@ -207,8 +211,6 @@ class TreeModel(QAbstractItemModel):
             return self.createIndex(row, column, childItem)
         else:
             return QModelIndex()
-
-
 
     def parent(self, index):
         if not index.isValid():
@@ -265,67 +267,56 @@ class TreeModel(QAbstractItemModel):
                 item = folder_item
         return item
 
-    def add_item(self, item_type, curr_index, **kwargs):
-        if item_type not in ('folder', 'feed'):
+    def add_item(self, category, curr_index, **kwargs):
+        self.log.debug(kwargs)
+        self.log.debug(curr_index.row())
+        if category not in ('folder', 'feed'):
             self.log.error("item type not in ('folder, 'feed')")
             return
-
-        if item_type == 'folder':
-            folder_name = kwargs['item_text']
-            # write data to database
-            self.query.add_folder(folder_name)
-            self.query.save()
-            # add tree menu item
-            if curr_index.isValid():
-                curr_item = curr_index.internalPointer()
-                if curr_item.type == 'feed':
-                    curr_index = curr_index.parent()
-                start = curr_index.row()
-            else:
-                start = self.rootItem.child_count() - 1
-            if self.insertRow(start, curr_index.parent()):
-                folder_id = self.query.folder_id(folder_name)
-                data = {
-                    'text': folder_name,
-                    'type': 'folder',
-                    'user_data': folder_id,
-                    'unread': 0
-                }
-                item = self.rootItem.childItems[start]
-                item.set_data(data)
+        # add a TreeItem
+        if curr_index.isValid():
+            start = curr_index.row()
+            parent_index = curr_index.parent()
+            parent_item = self.index_to_item(parent_index)
         else:
-            # add feed
-            # kwargs should be {title=,url= ,folder_id=}
-            folder_id = kwargs['folder_id']
-            # write data to database
-            self.query.add_feed(**kwargs)
-            self.query.save()
-
-            # add tree menu item
-            parent_item = self.find_folder_item(folder_id)
+            start = self.rootItem.child_count() - 1
+            parent_item = self.rootItem
             parent_index = self.item_to_index(parent_item)
-            start = parent_item.child_count() - 1
-            if curr_index.isValid():
-                curr_item = curr_index.internalPointer()
-                if curr_item.type == 'feed':
-                    self.log.debug("current item is a feed")
-                    if curr_item.parent() == parent_item:
-                        self.log.debug("current item's parent same")
-                        start = curr_index.row()
-            self.log.debug(
-                "start insert row, start:{}, parent title:{}".format(
-                    start, parent_item.text))
-            if self.insertRow(start, parent_index):
-                self.log.debug("insert row success")
-                feed_id = self.query.feed_row(**kwargs).id
-                data = {
-                    'text': kwargs['title'],
-                    'type': 'feed',
-                    'user_data': feed_id,
-                    'unread': 0
-                }
-                item = parent_item.childItems[start]
-                item.set_data(data)
+
+        if not self.insertRow(start, parent_index):
+            self.log.error('Insert Row Fail!')
+            return
+
+        item = parent_item.childItems[start]
+        # if category == 'folder':
+
+        # write data to database
+        # write data to database folder
+        folder_id = self.query.add_data(category, **kwargs)
+        # write data to database node
+        kwargs = dict(
+            parent_id=parent_item.node_id,
+            category=category,
+            data_id=folder_id
+        )
+        node_id = self.query.add_data('node', **kwargs)
+        self.log.debug(kwargs)
+        self.log.debug(node_id)
+        # set tree item data
+        node_row = self.query.node_row(node_id)
+        node_row_data = self.query.node_row_data(node_row)
+        self.modi_item_data(item, node_id, node_row_data)
+        # reorder, write data to database node
+        children = item.parent().childItems
+        for index, child in enumerate(children):
+            node = self.query.node_row(child.node_id)
+            node.order = index
+        self.query.save()
+
+        # print all database
+        nodes = self.query.read_data('node').all()
+        for node in nodes:
+            print(node.id, node.category, node.parent_id)
 
     def delete_item(self, index):
         item = index.internalPointer()
@@ -346,53 +337,56 @@ class TreeModel(QAbstractItemModel):
         self.removeRow(index.row(), index.parent())
         self.update_model_data()
 
-    def init_model_data(self):
-        self.beginResetModel()
-        self.init_model_data_sub()
-        self.endResetModel()
+    # def init_model_data(self):
+    #     self.beginResetModel()
+    #     self.init_model_data_sub()
+    #     self.endResetModel()
 
-    def init_model_data_sub(self, parent_item=None):
+    def init_model_data(self, parent_item=None):
         if parent_item:
-            parent_id = parent_item.id
+            parent_id = parent_item.node_id
         else:
             parent_item = self.rootItem
             parent_id = None
         node_rows = self.query.node_children_rows(parent_id)
         for node_row in node_rows:
             data = self.query.node_row_data(node_row)
-            item = TreeItem(node_row.id, data, parent_item)
+            item = TreeItem(parent_item, node_row.id, data)
             parent_item.append_child(item)
-            self.init_model_data_sub(item)
+            self.init_model_data(item)
 
     def read_item(self, item, key):
-        if key == 'title':
+        if key in ['title', 'unread']:
             return item.data.get(key)
-        if key == 'unread':
-            return item.data.get(key)
-        if key == 'category':
-            node_id = item.id
+        if key in ['category', 'data_id']:
+            node_id = item.node_id
             row = self.query.node_row(node_id)
-            return row.category
+            return getattr(row, key)
+        return None
 
     def update_model_data(self, parent_item=None):
-        if parent_item:
-            parent_id = parent_item.id
-        else:
+        if not parent_item:
             parent_item = self.rootItem
-            parent_id = None
-        rows = self.sess.query(Node).filter_by(parent_id=parent_id).all()
-        for index, row in enumerate(rows):
-            row_data = self.query.node_row_data(row)
-            # data = [row_data.get(col) for col in self.header_info]
-            item = parent_item.child(index)
-            if item.data != row_data:
-                item.set_data(row_data)
-                parent_index = self.item_to_index(parent_item)
-                col_count = len(self.header_info)
-                top_left_index = self.index(index, 0, parent_index)
-                bot_right_index = self.index(index, col_count - 1, parent_index)
-                self.dataChanged.emit(top_left_index, bot_right_index)
-            self.update_model_data(item)
+
+        for child in parent_item.childItems:
+            node_id = child.node_id
+            node_row = self.query.node_row(node_id)
+            node_row_data = self.query.node_row_data(node_row)
+            self.modi_item_data(child, node_id, node_row_data)
+            self.update_model_data(child)
+
+    def modi_item_data(self, item, node_id, data):
+        if item.node_id != node_id or item.data != data:
+            item.set_node_id(node_id)
+            item.set_data(data)
+            # emit signal
+            parent_item = item.parent()
+            parent_index = self.item_to_index(parent_item)
+            col_count = len(data)
+            row = item.row()
+            top_left_index = self.index(row, 0, parent_index)
+            bot_right_index = self.index(row, col_count - 1, parent_index)
+            self.dataChanged.emit(top_left_index, bot_right_index)
 
 
 if __name__ == '__main__':

@@ -159,30 +159,29 @@ class MainWindow(QMainWindow):
         text, ok = QInputDialog.getText(self, "Please Input Folder Name",
                                         "Folder Name:", QLineEdit.Normal)
         if ok and text != '':
-            curr_index = self.tree_menu.currentIndex()
-            item_type = 'folder'
-            data = dict(item_text=text)
-            self.tree_menu.model().add_item(item_type, curr_index, **data)
+            curr_index = self.tree_view.currentIndex()
+            item_category = 'folder'
+            data = dict(title=text)
+            self.tree_model.add_item(item_category, curr_index, **data)
 
     def add_feed(self):
         folder_id = None
-        curr_index = self.tree_menu.currentIndex()
+        curr_index = self.tree_view.currentIndex()
         if curr_index.isValid():
             item = curr_index.internalPointer()
-            item_type = item.type
-            if item_type == 'feed':
-                folder_id = item.parent().user_data
-            if item_type == 'folder':
-                folder_id = item.user_data
+            item_category = self.tree_model.read_item(item, 'category')
+            if item_category == 'feed':
+                item = item.parent()
+            folder_id = self.tree_model.read_item(item, 'data_id')
         wizard = AddFeedWizard(folder_id)
         wizard.setWindowTitle("Add Feed Wizard")
         wizard.show()
 
         ok = wizard.exec_()
         if ok:
-            item_type = 'feed'
+            item_category = 'feed'
             data = wizard.get_data()
-            self.tree_menu.model().add_item(item_type, curr_index, **data)
+            self.tree_model.add_item(item_category, curr_index, **data)
         wizard.destroy()
 
     def delete_feeds(self):
@@ -190,20 +189,20 @@ class MainWindow(QMainWindow):
         delete current tree menu item, item type must be 'feed' or 'folder'
         :return: None
         """
-        view = self.tree_menu
+        view = self.tree_view
         model = view.model()
         index = view.currentIndex()
         if index.isValid():
             item = index.internalPointer()
-            item_type = item.type
+            item_category = item.type
             item_text = item.text
         else:
             return
 
-        if item_type not in ['feed', 'folder']:
+        if item_category not in ['feed', 'folder']:
             return
 
-        msg = 'Are sure to delete {} {}'.format(item_type, item_text)
+        msg = 'Are sure to delete {} {}'.format(item_category, item_text)
         reply = QMessageBox.question(
             self, "Confirm", msg, QMessageBox.Yes | QMessageBox.No)
         if reply == QMessageBox.Yes:
@@ -214,25 +213,25 @@ class MainWindow(QMainWindow):
         event.accept()
 
     def modi_feed(self):
-        item = self.tree_menu.current_item()
-        item_type = item.type
+        item = self.tree_view.current_item()
+        item_category = item.type
         item_data = item.user_data
-        if item_type == 'feed':
+        if item_category == 'feed':
             dlg = FeedDialog(self, feed_id=item_data)
             ok = dlg.exec_()
             if ok:
                 data = dlg.getData()
                 self.query.modi_feed(item_data, **data)
                 self.query.save()
-                self.tree_menu.load_from_database()
+                self.tree_view.load_from_database()
             dlg.destroy()
 
     def modi_folder(self):
-        item = self.tree_menu.current_item()
-        item_type = item.type
+        item = self.tree_view.current_item()
+        item_category = item.type
         item_data = item.user_data
         item_text = item.text
-        if item_type == 'folder':
+        if item_category == 'folder':
             new_folder_name, ok = QInputDialog.getText(
                 self, "New Folder Name",
                 "New Folder Name:",
@@ -241,7 +240,7 @@ class MainWindow(QMainWindow):
             if ok and new_folder_name != '':
                 self.query.modi_folder(item_data, new_folder_name)
                 self.query.save()
-                self.tree_menu.load_from_database()
+                self.tree_view.load_from_database()
 
     def about(self):
         QMessageBox.about(self, "About Rss Hole",
@@ -404,7 +403,8 @@ class MainWindow(QMainWindow):
         view.setModel(model)
         view.expandAll()
 
-        self.tree_menu = view
+        self.tree_view = view
+        self.tree_model = model
 
     def create_item_list_view(self):
         model = ItemListModel()
@@ -467,7 +467,7 @@ class MainWindow(QMainWindow):
         dock.setObjectName("tree_menu")
         # dock.setAllowedAreas(
         #     Qt.LeftDockWidgetArea | Qt.RightDockWidgetArea)
-        dock.setWidget(self.tree_menu)
+        dock.setWidget(self.tree_view)
         self.addDockWidget(Qt.LeftDockWidgetArea, dock)
         self.viewMenu.addAction(dock.toggleViewAction())
 
@@ -481,7 +481,7 @@ class MainWindow(QMainWindow):
 
     # noinspection PyUnresolvedReferences
     def create_signals(self):
-        self.tree_menu.current_changed.connect(
+        self.tree_view.current_changed.connect(
             self.tree_menu_current_changed)
         self.item_list_view.current_changed.connect(
             self.item_list_view_current_changed)
@@ -492,8 +492,8 @@ class MainWindow(QMainWindow):
         load items in items list view
         :return:
         """
-        index = self.tree_menu.currentIndex()
-        node_id = self.tree_menu.model().get_node_id(index)
+        index = self.tree_view.currentIndex()
+        node_id = self.tree_model.get_node_id(index)
         self.item_list_view.model().reload(node_id)
 
     def show_item_content(self, index):
@@ -526,11 +526,11 @@ class MainWindow(QMainWindow):
         if is_mark_all:
             data_changed = self.query.mark_read()
         else:
-            index = self.tree_menu.currentIndex()
-            node_id = self.tree_menu.model().get_node_id(index)
+            index = self.tree_view.currentIndex()
+            node_id = self.tree_model.get_node_id(index)
             data_changed = self.query.mark_read(node_id)
         if data_changed:
-            self.tree_menu.model().update_model_data()
+            self.tree_model.update_model_data()
             self.load_items()
 
     def mark_item_read(self):
@@ -555,7 +555,7 @@ class MainWindow(QMainWindow):
         model.dataChanged.emit(top_left_index, bot_right_index)
 
         # update treeview
-        self.tree_menu.model().update_model_data()
+        self.tree_model.update_model_data()
 
     def make_debug_database(self):
         import shutil
@@ -579,7 +579,7 @@ class MainWindow(QMainWindow):
 
     def update_feeds_end(self):
         self.thread.quit()
-        self.tree_menu.model().update_model_data()
+        self.tree_model.update_model_data()
         self.load_items()
         self.statusBar().showMessage('Update done.')
 
@@ -592,14 +592,14 @@ class MainWindow(QMainWindow):
         else:
             feed_ids = []
             item = self.current_item()
-            item_type = item.type
+            item_category = item.type
             item_data = item.user_data
-            if item_type == 'feed':
+            if item_category == 'feed':
                 feed_ids.append(item_data)
-            if item_type == 'folder':
+            if item_category == 'folder':
                 rows = self.query.feed_rows(item_data)
                 feed_ids = [row.id for row in rows]
-            if item_type == 'command' and item_data == 'load_all_items':
+            if item_category == 'command' and item_data == 'load_all_items':
                 rows = self.query.feed_rows()
                 feed_ids = [row.id for row in rows]
 
@@ -639,7 +639,7 @@ class MainWindow(QMainWindow):
             parent_id = int(item_id[:2])
             child_id = int(item_id[-3:])
 
-            model = self.tree_menu.model()
+            model = self.tree_model
             if parent_id == 0:
                 # top item
                 parent_index = QModelIndex()
@@ -647,7 +647,7 @@ class MainWindow(QMainWindow):
                 parent_index = model.index(parent_id, 0, QModelIndex())
             index = model.index(child_id, 0, parent_index)
             if index.isValid():
-                self.tree_menu.setCurrentIndex(index)
+                self.tree_view.setCurrentIndex(index)
 
     def write_settings(self):
         """ write the settings to config file """
@@ -661,7 +661,7 @@ class MainWindow(QMainWindow):
         # id is 5 digital string, first 2 is parent item index,
         # if parent item is root item, first 2 is '00'.
         # 3-5 digital is item index.
-        item = self.tree_menu.current_item()
+        item = self.tree_view.current_item()
         if item:
             item_row = item.row()
             parent_row = item.parent().row()

@@ -248,3 +248,12 @@ if __name__ == '__main__':
     new_query = sess.query(Node).filter_by(id=9)
     row = new_query.first()
     print(query.node_all_children(row))
+
+    print(sess.query(RssFolder).count())
+    title = 'abc'
+    folder = RssFolder()
+    folder.title = title
+    print(folder.id)
+    sess.add(folder)
+    sess.commit()
+    print(folder.id)

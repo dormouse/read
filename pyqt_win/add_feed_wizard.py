@@ -6,6 +6,7 @@ from PyQt5.QtWidgets import (QApplication,
                              QWizard, QWizardPage)
 from pyqt_win.parser import FeedParser
 from pyqt_win.queries import QueryRss
+import project_conf
 
 
 class AddFeedWizard(QWizard):
@@ -34,7 +35,10 @@ class UrlPage(QWizardPage):
         self.setSubTitle("Please fill url field.")
 
         url_label = QLabel("Url:")
-        url_line_edit = QLineEdit()
+        if project_conf.DEBUG:
+            url_line_edit = QLineEdit('http://news.smzdm.com/feed')
+        else:
+            url_line_edit = QLineEdit()
         self.registerField('url*', url_line_edit)
 
         form_layout = QFormLayout()
@@ -73,13 +77,14 @@ class DetailPage(QWizardPage):
 
         folder_label = QLabel("Folder:")
         self.folder_combobox = QComboBox()
-        rows = self.query.folder_rows()
+        rows = self.query.read_data('folder').all()
         for row in rows:
-            self.folder_combobox.addItem(row.name, userData=row.id)
+            self.folder_combobox.addItem(row.title, userData=row.id)
         form_layout.addRow(folder_label, self.folder_combobox)
         if folder_id:
-            folder_name = self.query.folder_name(folder_id)
-            self.folder_combobox.setCurrentText(folder_name)
+            kwargs = dict(id=folder_id)
+            folder_title = self.query.read_data('folder', **kwargs).one().title
+            self.folder_combobox.setCurrentText(folder_title)
 
         self.setLayout(form_layout)
 

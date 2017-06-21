@@ -104,6 +104,10 @@ class QueryRss(object):
                 if hasattr(obj, k):
                     setattr(obj, k, v)
             self.sess.add(obj)
+            self.save()
+            return obj.id
+        else:
+            return None
 
     def read_data(self, category, **kwargs):
         obj_class = self.category_class(category)
