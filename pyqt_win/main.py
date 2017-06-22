@@ -192,20 +192,18 @@ class MainWindow(QMainWindow):
         delete current tree menu item, item type must be 'feed' or 'folder'
         :return: None
         """
-        view = self.tree_view
-        model = view.model()
-        index = view.currentIndex()
+        index = self.tree_view.currentIndex()
         if index.isValid():
             item = index.internalPointer()
-            item_category = item.type
-            item_text = item.text
+            item_category = self.tree_model.read_item(item, 'category')
+            item_title = self.tree_model.read_item(item, 'title')
         else:
             return
 
         if item_category not in ['feed', 'folder']:
             return
 
-        msg = 'Are sure to delete {} {}'.format(item_category, item_text)
+        msg = 'Are sure to delete {} {}'.format(item_category, item_title)
         reply = QMessageBox.question(
             self, "Confirm", msg, QMessageBox.Yes | QMessageBox.No)
         if reply == QMessageBox.Yes:

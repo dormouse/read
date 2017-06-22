@@ -156,6 +156,19 @@ class QueryRss(object):
         else:
             return None
 
+    def node_row_value(self, node_row):
+        value = {'node': node_row}
+        cate_query = self.category_query(node_row.category)
+        value['node_link'] = cate_query.get(node_row.data_id)
+        # unread count
+        item_query = self.node_items_query(node_row.id)
+        item_query = item_query.filter_by(is_read=False)
+        unread = item_query.count()
+        # return data
+        value['data'] = dict(unread=unread)
+        return value
+
+    """
     def node_row_data(self, node_row):
         cate_query = self.category_query(node_row.category)
         row = cate_query.filter_by(id=node_row.data_id).one()
@@ -168,6 +181,7 @@ class QueryRss(object):
         # return data
         data = dict(title=title, unread=unread)
         return data
+    """
 
     def node_items_query(self, node_id):
         """

@@ -79,12 +79,11 @@ class ItemListModel(SqlModel):
 
 
 class TreeItem(object):
-    def __init__(self, parent=None, node_id=None, data=None):
+    def __init__(self, parent=None, **kwargs):
         self.log = project_conf.LOG
         self.parentItem = parent
         self.childItems = []
-        self.data = data
-        self.node_id = node_id
+        self.set_value(**kwargs)
 
     def append_child(self, item):
         self.childItems.append(item)
@@ -131,11 +130,9 @@ class TreeItem(object):
             return self.parentItem.childItems.index(self)
         return 0
 
-    def set_data(self, data):
-        self.data = data
-
-    def set_node_id(self, node_id):
-        self.node_id = node_id
+    def set_value(self, **kwargs):
+        for k, v in kwargs.items():
+            setattr(self, k, v)
 
 
 class TreeModel(QAbstractItemModel):
@@ -172,11 +169,8 @@ class TreeModel(QAbstractItemModel):
         if role == Qt.FontRole:
             return self.unread_font if item.unread else self.read_font
 
-        if item.data:
-            item_data_source_name = self.header_info[index.column()]
-            return item.data.get(item_data_source_name)
-
-        return None
+        item_data_source_name = self.header_info[index.column()]
+        return self.read_item(item, item_data_source_name)
 
     def flags(self, index):
         if not index.isValid():
@@ -187,7 +181,7 @@ class TreeModel(QAbstractItemModel):
     def get_node_id(self, index):
         if index.isValid():
             item = self.index_to_item(index)
-            return item.node_id
+            return item.node.id
         else:
             return None
 
@@ -280,7 +274,7 @@ class TreeModel(QAbstractItemModel):
         if folder_node_id:
             all_items = self.rootItem.children()
             for item in all_items:
-                if item.node_id == folder_node_id:
+                if item.node.id == folder_node_id:
                     folder_item = item
         # get parent item of current item
         if curr_index.isValid():
@@ -341,7 +335,7 @@ class TreeModel(QAbstractItemModel):
         data_id = self.query.add_data(category, **kwargs)
         # write data to database node
         kwargs = dict(
-            parent_id=parent_item.node_id,
+            parent_id=parent_item.node.id,
             category=category,
             data_id=data_id
         )
@@ -350,21 +344,16 @@ class TreeModel(QAbstractItemModel):
         self.log.debug(node_id)
         # set tree item data
         node_row = self.query.node_row(node_id)
-        node_row_data = self.query.node_row_data(node_row)
-        self.modi_item_data(item, node_id, node_row_data)
+        node_row_value = self.query.node_row_value(node_row)
+        self.modi_item_data(item, **node_row_value)
         # reorder, write data to database node
         children = item.parent().childItems
         for index, child in enumerate(children):
-            node = self.query.node_row(child.node_id)
-            node.order = index
+            child.node.order = index
         self.query.save()
 
-        # print all database
-        nodes = self.query.read_data('node').all()
-        for node in nodes:
-            print(node.id, node.category, node.parent_id)
-
     def delete_item(self, index):
+
         item = index.internalPointer()
         if item:
             item_type = item.type
@@ -383,31 +372,26 @@ class TreeModel(QAbstractItemModel):
         self.removeRow(index.row(), index.parent())
         self.update_model_data()
 
-    # def init_model_data(self):
-    #     self.beginResetModel()
-    #     self.init_model_data_sub()
-    #     self.endResetModel()
-
     def init_model_data(self, parent_item=None):
         if parent_item:
-            parent_id = parent_item.node_id
+            parent_id = parent_item.node.id
         else:
             parent_item = self.rootItem
             parent_id = None
         node_rows = self.query.node_children_rows(parent_id)
         for node_row in node_rows:
-            data = self.query.node_row_data(node_row)
-            item = TreeItem(parent_item, node_row.id, data)
+            node_row_value = self.query.node_row_value(node_row)
+            item = TreeItem(parent_item, **node_row_value)
             parent_item.append_child(item)
             self.init_model_data(item)
 
     def read_item(self, item, key):
-        if key in ['title', 'unread']:
-            return item.data.get(key)
         if key in ['category', 'data_id']:
-            node_id = item.node_id
-            row = self.query.node_row(node_id)
-            return getattr(row, key)
+            return getattr(item.node, key, None)
+        if key in ['title', ]:
+            return getattr(item.node_link, key, None)
+        if key in ['unread', ]:
+            return item.data.get(key)
         return None
 
     def update_model_data(self, parent_item=None):
@@ -415,20 +399,21 @@ class TreeModel(QAbstractItemModel):
             parent_item = self.rootItem
 
         for child in parent_item.childItems:
-            node_id = child.node_id
-            node_row = self.query.node_row(node_id)
-            node_row_data = self.query.node_row_data(node_row)
-            self.modi_item_data(child, node_id, node_row_data)
+            node_row_value = self.query.node_row_value(child.node)
+            self.modi_item_data(child, **node_row_value)
             self.update_model_data(child)
 
-    def modi_item_data(self, item, node_id, data):
-        if item.node_id != node_id or item.data != data:
-            item.set_node_id(node_id)
-            item.set_data(data)
+    def modi_item_data(self, item, **node_row_value):
+        changed = False
+        for k, v in node_row_value.items():
+            if getattr(item, k, None) != v:
+                changed = True
+                setattr(item, k, v)
+        if changed:
             # emit signal
             parent_item = item.parent()
             parent_index = self.item_to_index(parent_item)
-            col_count = len(data)
+            col_count = len(self.header_info)
             row = item.row()
             top_left_index = self.index(row, 0, parent_index)
             bot_right_index = self.index(row, col_count - 1, parent_index)
