@@ -77,6 +77,7 @@ class DetailPage(QWizardPage):
 
         folder_label = QLabel("Folder:")
         self.folder_combobox = QComboBox()
+        self.folder_combobox.addItem('Root Folder', userData=0)
         rows = self.query.read_data('folder').all()
         for row in rows:
             self.folder_combobox.addItem(row.title, userData=row.id)

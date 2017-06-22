@@ -126,9 +126,9 @@ class QueryRss(object):
         :param node: a database.models.Node object
         :return:
             all_children: a database.models.Node object list ,
-                          include all children of node recursively
+                          include node and all children of node recursively
         """
-        all_children = node.children
+        all_children = [node, ]
         for child in node.children:
             all_children += self.node_all_children(child)
         return all_children
@@ -139,7 +139,22 @@ class QueryRss(object):
         return node_rows
 
     def node_row(self, node_id):
-        return self.sess.query(Node).filter_by(id=node_id).one()
+        return self.sess.query(Node).get(node_id)
+
+    def node_id_folder_id(self, folder_id):
+        """
+        folder id --> node id
+        :param folder_id:
+        :return:
+        """
+        query = self.sess.query(Node). \
+            filter_by(category='folder'). \
+            filter_by(data_id=folder_id)
+        row = query.first()
+        if row:
+            return row.id
+        else:
+            return None
 
     def node_row_data(self, node_row):
         cate_query = self.category_query(node_row.category)
@@ -172,8 +187,7 @@ class QueryRss(object):
                 return None
         else:
             # get all nodes include row and row's all children
-            nodes = [row, ]
-            nodes += self.node_all_children(row)
+            nodes = self.node_all_children(row)
             # get all feed ids
             feed_ids = []
             for node in nodes:

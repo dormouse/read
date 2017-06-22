@@ -267,13 +267,41 @@ class TreeModel(QAbstractItemModel):
                 item = folder_item
         return item
 
-    def add_item(self, category, curr_index, **kwargs):
-        self.log.debug(kwargs)
-        self.log.debug(curr_index.row())
-        if category not in ('folder', 'feed'):
-            self.log.error("item type not in ('folder, 'feed')")
-            return
-        # add a TreeItem
+    def prepare_add_feed(self, folder_id, curr_index):
+        """
+        for add_item function
+        :param folder_id:
+        :param curr_index:
+        :return: start, parent item
+        """
+        # find folder item by folder id
+        folder_item = self.rootItem
+        folder_node_id = self.query.node_id_folder_id(folder_id)
+        if folder_node_id:
+            all_items = self.rootItem.children()
+            for item in all_items:
+                if item.node_id == folder_node_id:
+                    folder_item = item
+        # get parent item of current item
+        if curr_index.isValid():
+            parent_index = curr_index.parent()
+            parent_item = self.index_to_item(parent_index)
+        else:
+            parent_item = None
+        # compare folder item and parent item
+        if folder_item == parent_item:
+            start = curr_index.row()
+        else:
+            parent_item = folder_item
+            start = parent_item.child_count() - 1
+        return start, parent_item
+
+    def prepare_add_folder(self, curr_index):
+        """
+        for add_item function
+        :param curr_index:
+        :return: start, parent item
+        """
         if curr_index.isValid():
             start = curr_index.row()
             parent_index = curr_index.parent()
@@ -281,23 +309,41 @@ class TreeModel(QAbstractItemModel):
         else:
             start = self.rootItem.child_count() - 1
             parent_item = self.rootItem
-            parent_index = self.item_to_index(parent_item)
+        return start, parent_item
 
+    def add_item(self, category, curr_index, **kwargs):
+        self.log.debug(kwargs)
+        self.log.debug(curr_index.row())
+        if category not in ('folder', 'feed'):
+            self.log.error("item type not in ('folder, 'feed')")
+            return
+        # add a TreeItem
+        if category == 'feed':
+            start, parent_item = self.prepare_add_feed(
+                kwargs['folder_id'], curr_index)
+            del (kwargs['folder_id'])
+        else:
+            start, parent_item = self.prepare_add_folder(curr_index)
+        # if parent item have no child ,start will be -1, so fix it
+        start = 0 if start < 0 else start
+        parent_index = self.item_to_index(parent_item)
         if not self.insertRow(start, parent_index):
-            self.log.error('Insert Row Fail!')
+            msg = "Insert Row Fail! start:{}, parent index row:{}".format(
+                start, parent_index.row())
+            self.log.error(msg)
             return
 
         item = parent_item.childItems[start]
         # if category == 'folder':
 
         # write data to database
-        # write data to database folder
-        folder_id = self.query.add_data(category, **kwargs)
+        # write data to database folder or feed
+        data_id = self.query.add_data(category, **kwargs)
         # write data to database node
         kwargs = dict(
             parent_id=parent_item.node_id,
             category=category,
-            data_id=folder_id
+            data_id=data_id
         )
         node_id = self.query.add_data('node', **kwargs)
         self.log.debug(kwargs)
