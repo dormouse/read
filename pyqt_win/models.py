@@ -9,7 +9,7 @@ from sqlalchemy import desc
 
 import project_conf
 from database.database import rss_sess
-from database.models import RssItem, Node
+from database.models import RssItem
 from pyqt_win.queries import QueryRss
 from yttools import SqlModel
 
@@ -219,8 +219,8 @@ class TreeModel(QAbstractItemModel):
         return self.createIndex(parentItem.row(), 0, parentItem)
 
     def rowCount(self, parent):
-        if parent.column() > 0:
-            return 0
+        # if parent.column() > 0:
+        #     return 0
 
         if not parent.isValid():
             parentItem = self.rootItem
@@ -237,7 +237,10 @@ class TreeModel(QAbstractItemModel):
         return self.rootItem
 
     def item_to_index(self, item):
-        return self.createIndex(item.row(), 0, item)
+        if item == self.rootItem:
+            return QModelIndex()
+        else:
+            return self.createIndex(item.row(), 0, item)
 
     def removeRows(self, start, count, parent=QModelIndex()):
         parent_item = self.index_to_item(parent)
@@ -268,6 +271,8 @@ class TreeModel(QAbstractItemModel):
         :param curr_index:
         :return: start, parent item
         """
+        self.log.debug('folder_id:{}, curr_index row:{}'.format(
+            folder_id, curr_index.row()))
         # find folder item by folder id
         folder_item = self.rootItem
         folder_node_id = self.query.node_id_folder_id(folder_id)
@@ -288,6 +293,9 @@ class TreeModel(QAbstractItemModel):
         else:
             parent_item = folder_item
             start = parent_item.child_count() - 1
+        self.log.debug("start:{}, parent_item row:{}".format(
+            start, parent_item.row()
+        ))
         return start, parent_item
 
     def prepare_add_folder(self, curr_index):
@@ -306,11 +314,11 @@ class TreeModel(QAbstractItemModel):
         return start, parent_item
 
     def add_item(self, category, curr_index, **kwargs):
-        self.log.debug(kwargs)
-        self.log.debug(curr_index.row())
+        # check category
         if category not in ('folder', 'feed'):
             self.log.error("item type not in ('folder, 'feed')")
             return
+
         # add a TreeItem
         if category == 'feed':
             start, parent_item = self.prepare_add_feed(
@@ -328,29 +336,32 @@ class TreeModel(QAbstractItemModel):
             return
 
         item = parent_item.childItems[start]
-        # if category == 'folder':
 
         # write data to database
         # write data to database folder or feed
         data_id = self.query.add_data(category, **kwargs)
         # write data to database node
+        parent_id = self.read_item(parent_item, 'id')
         kwargs = dict(
-            parent_id=parent_item.node.id,
+            parent_id=parent_id,
             category=category,
             data_id=data_id
         )
         node_id = self.query.add_data('node', **kwargs)
-        self.log.debug(kwargs)
-        self.log.debug(node_id)
+
         # set tree item data
         node_row = self.query.node_row(node_id)
         node_row_value = self.query.node_row_value(node_row)
         self.modi_item_data(item, **node_row_value)
+
         # reorder, write data to database node
         children = item.parent().childItems
         for index, child in enumerate(children):
-            child.node.order = index
+            child.node.rank = index
         self.query.save()
+        # print all node
+        # for row in self.query.category_query('node'):
+        #     print(row.id, row.category, row.data_id)
 
     def delete_item(self, index):
 
@@ -386,7 +397,9 @@ class TreeModel(QAbstractItemModel):
             self.init_model_data(item)
 
     def read_item(self, item, key):
-        if key in ['category', 'data_id']:
+        if item == self.rootItem:
+            return None
+        if key in ['category', 'data_id', 'id']:
             return getattr(item.node, key, None)
         if key in ['title', ]:
             return getattr(item.node_link, key, None)

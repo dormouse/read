@@ -576,6 +576,15 @@ class MainWindow(QMainWindow):
         self.show_item_content(curr_index)
 
     def tree_menu_current_changed(self, curr_index, prev_index):
+        if project_conf.DEBUG:
+            if curr_index.isValid():
+                model = self.tree_model
+                item = model.index_to_item(curr_index)
+                msg = "node id:{}".format(
+                    model.read_item(item, 'id')
+                )
+                self.statusBar().showMessage(msg)
+
         self.load_items()
 
     def update_feeds_end(self):

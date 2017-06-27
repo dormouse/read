@@ -35,6 +35,16 @@ class TreeItem(object):
     def removeChild(self, index):
         self.childItems.pop(index)
 
+    def insert_children(self, position, count):
+        if position < 0 or position > len(self.childItems):
+            return False
+
+        for row in range(count):
+            item = TreeItem(('New item', 2), self)
+            self.childItems.insert(position, item)
+
+        return True
+
     def child(self, row):
         return self.childItems[row]
 
@@ -138,6 +148,13 @@ class TreeModel(QAbstractItemModel):
         self.endRemoveRows()
         return True
 
+    def insertRows(self, start, count, parent=QModelIndex()):
+        parentItem = self.index_to_item(parent)
+        self.beginInsertRows(parent, start, start + count - 1)
+        success = parentItem.insert_children(start, count)
+        self.endInsertRows()
+        return success
+
     def rowCount(self, parent):
         if parent.column() > 0:
             return 0
@@ -186,6 +203,10 @@ class MainWindow(QMainWindow):
         bt3.clicked.connect(self.bt3_clicked)
         main_layout.addWidget(bt3)
 
+        bt4 = QPushButton("Insert before current row")
+        bt4.clicked.connect(self.bt4_clicked)
+        main_layout.addWidget(bt4)
+
         widget.setLayout(main_layout)
         self.view.expandAll()
 
@@ -212,6 +233,15 @@ class MainWindow(QMainWindow):
         print('current index row:', curr_index.row())
         model.removeRow(curr_index.row(),  curr_index.parent())
 
+    def bt4_clicked(self):
+        """
+        insert before current item
+        :return:
+        """
+        view = self.view
+        model = self.view.model()
+        curr_index = view.currentIndex()
+        model.insertRow(curr_index.row(), curr_index.parent())
 
 if __name__ == '__main__':
 
