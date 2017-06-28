@@ -194,7 +194,7 @@ class MainWindow(QMainWindow):
         """
         index = self.tree_view.currentIndex()
         if index.isValid():
-            item = index.internalPointer()
+            item = self.tree_model.index_to_item(index)
             item_category = self.tree_model.read_item(item, 'category')
             item_title = self.tree_model.read_item(item, 'title')
         else:
@@ -207,7 +207,9 @@ class MainWindow(QMainWindow):
         reply = QMessageBox.question(
             self, "Confirm", msg, QMessageBox.Yes | QMessageBox.No)
         if reply == QMessageBox.Yes:
-            model.delete_item(index)
+            node_id = self.tree_model.read_item(item, 'id')
+            self.query.delete_node(node_id)
+            self.tree_model.delete_item(index)
 
     def closeEvent(self, event):
         self.write_settings()
@@ -494,7 +496,8 @@ class MainWindow(QMainWindow):
         :return:
         """
         index = self.tree_view.currentIndex()
-        node_id = self.tree_model.get_node_id(index)
+        item = self.tree_model.index_to_item(index)
+        node_id = self.tree_model.read_item(item, 'id')
         self.item_list_view.model().reload(node_id)
 
     def show_item_content(self, index):
@@ -528,7 +531,8 @@ class MainWindow(QMainWindow):
             data_changed = self.query.mark_read()
         else:
             index = self.tree_view.currentIndex()
-            node_id = self.tree_model.get_node_id(index)
+            item = self.tree_model.index_to_item(index)
+            node_id = self.tree_model.read_item(item, 'id')
             data_changed = self.query.mark_read(node_id)
         if data_changed:
             self.tree_model.update_model_data()

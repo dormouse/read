@@ -178,12 +178,12 @@ class TreeModel(QAbstractItemModel):
 
         return Qt.ItemIsEnabled | Qt.ItemIsSelectable
 
-    def get_node_id(self, index):
-        if index.isValid():
-            item = self.index_to_item(index)
-            return item.node.id
-        else:
-            return None
+    # def get_node_id(self, index):
+    #     if index.isValid():
+    #         item = self.index_to_item(index)
+    #         return item.node.id
+    #     else:
+    #         return None
 
     def headerData(self, section, orientation, role=Qt.DisplayRole):
         if orientation == Qt.Horizontal and role == Qt.DisplayRole:
@@ -231,10 +231,9 @@ class TreeModel(QAbstractItemModel):
 
     def index_to_item(self, index):
         if index.isValid():
-            item = index.internalPointer()
-            if item:
-                return item
-        return self.rootItem
+            return index.internalPointer()
+        else:
+            return None
 
     def item_to_index(self, item):
         if item == self.rootItem:
@@ -378,21 +377,6 @@ class TreeModel(QAbstractItemModel):
         #     print(row.id, row.category, row.data_id)
 
     def delete_item(self, index):
-
-        item = index.internalPointer()
-        if item:
-            item_type = item.type
-            item_data = item.user_data
-        else:
-            return
-
-        # delete database data
-        if item_type == 'feed':
-            self.query.delete_feed(item_data)
-        if item_type == 'folder':
-            self.query.delete_folder(item_data)
-        self.query.save()
-
         # remove model item
         self.removeRow(index.row(), index.parent())
         self.update_model_data()

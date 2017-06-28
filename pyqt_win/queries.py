@@ -168,21 +168,6 @@ class QueryRss(object):
         value['data'] = dict(unread=unread)
         return value
 
-    """
-    def node_row_data(self, node_row):
-        cate_query = self.category_query(node_row.category)
-        row = cate_query.filter_by(id=node_row.data_id).one()
-        # title
-        title = row.title
-        # unread count
-        item_query = self.node_items_query(node_row.id)
-        item_query = item_query.filter_by(is_read=False)
-        unread = item_query.count()
-        # return data
-        data = dict(title=title, unread=unread)
-        return data
-    """
-
     def node_items_query(self, node_id):
         """
 
@@ -221,6 +206,20 @@ class QueryRss(object):
         query = self.read_data(category, **kwargs)
         if query:
             query.delete()
+
+    def delete_node(self, node_id):
+        # delete all items
+        items = self.node_items_query(node_id)
+        for item in items:
+            self.sess.delete(item)
+        # node
+        node_row = self.node_row(node_id)
+        nodes = self.node_all_children(node_row)
+        for node in nodes:
+            value = self.node_row_value(node)
+            self.sess.delete(value['node_link'])
+            self.sess.delete(value['node'])
+        self.save()
 
     def delete_feed(self, feed_id):
         # delete feed's item
