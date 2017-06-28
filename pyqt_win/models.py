@@ -256,6 +256,21 @@ class TreeModel(QAbstractItemModel):
         self.endInsertRows()
         return success
 
+    def feed_ids(self, parent_item):
+        """
+        get all feed ids belong item, include item itself
+
+        :param
+        :return: a list of ids
+        """
+        items = [parent_item, ] + parent_item.children()
+        ids = []
+        for item in items:
+            category = self.read_item(item, 'category')
+            if category == 'feed':
+                ids.append(self.read_item(item, 'data_id'))
+        return ids
+
     def find_folder_item(self, folder_id):
         item = None
         folder_items = self.rootItem.childItems
@@ -294,8 +309,7 @@ class TreeModel(QAbstractItemModel):
             parent_item = folder_item
             start = parent_item.child_count() - 1
         self.log.debug("start:{}, parent_item row:{}".format(
-            start, parent_item.row()
-        ))
+            start, parent_item.row()))
         return start, parent_item
 
     def prepare_add_folder(self, curr_index):
@@ -338,9 +352,9 @@ class TreeModel(QAbstractItemModel):
         item = parent_item.childItems[start]
 
         # write data to database
-        # write data to database folder or feed
+        # write data to table of folder or feed
         data_id = self.query.add_data(category, **kwargs)
-        # write data to database node
+        # write data to table node
         parent_id = self.read_item(parent_item, 'id')
         kwargs = dict(
             parent_id=parent_id,

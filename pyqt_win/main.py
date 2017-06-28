@@ -597,23 +597,16 @@ class MainWindow(QMainWindow):
     def update_feeds(self, is_update_all=False):
         self.log.debug("is_update_all %s", is_update_all)
         if is_update_all:
-            feed_rows = self.query.feed_rows()
-            feed_ids = [row.id for row in feed_rows]
+            item = self.tree_model.rootItem
         else:
-            feed_ids = []
-            item = self.current_item()
-            item_category = item.type
-            item_data = item.user_data
-            if item_category == 'feed':
-                feed_ids.append(item_data)
-            if item_category == 'folder':
-                rows = self.query.feed_rows(item_data)
-                feed_ids = [row.id for row in rows]
-            if item_category == 'command' and item_data == 'load_all_items':
-                rows = self.query.feed_rows()
-                feed_ids = [row.id for row in rows]
-
-
+            # use current index
+            curr_index = self.tree_view.currentIndex()
+            if curr_index.isValid():
+                item = self.tree_model.index_to_item(curr_index)
+            else:
+                item = self.tree_model.rootItem
+        feed_ids = self.tree_model.feed_ids(item)
+        # start update
         self.update_feeds_worker = UpdateFeedsWorker(feed_ids)
         self.update_feeds_worker.start_parseing_feed.connect(
             self.on_start_parseing_feed)
