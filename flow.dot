@@ -6,7 +6,7 @@ digraph G
     end[shape = oval];
     parse_feed[label = "input:url|parse_feed|output:new_items" shape = Mrecord];
     parse_item[label = "input:item|parse_item|output:html" shape = Mrecord];
-    have_new_items[shape = diamond];
+    have_new_items[label = "是否有新的项目" shape = diamond];
 
     start -> parse_feed -> have_new_items;
     have_new_items -> parse_item[label = "Yes"];
