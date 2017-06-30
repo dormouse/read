@@ -233,7 +233,7 @@ class TreeModel(QAbstractItemModel):
         if index.isValid():
             return index.internalPointer()
         else:
-            return None
+            return self.rootItem
 
     def item_to_index(self, item):
         if item == self.rootItem:
@@ -375,11 +375,6 @@ class TreeModel(QAbstractItemModel):
         # print all node
         # for row in self.query.category_query('node'):
         #     print(row.id, row.category, row.data_id)
-
-    def delete_item(self, index):
-        # remove model item
-        self.removeRow(index.row(), index.parent())
-        self.update_model_data()
 
     def init_model_data(self, parent_item=None):
         if parent_item:

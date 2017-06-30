@@ -208,8 +208,9 @@ class MainWindow(QMainWindow):
             self, "Confirm", msg, QMessageBox.Yes | QMessageBox.No)
         if reply == QMessageBox.Yes:
             node_id = self.tree_model.read_item(item, 'id')
+            self.tree_model.removeRow(index.row(), index.parent())
             self.query.delete_node(node_id)
-            self.tree_model.delete_item(index)
+            self.tree_model.update_model_data()
 
     def closeEvent(self, event):
         self.write_settings()
