@@ -218,10 +218,10 @@ class MainWindow(QMainWindow):
 
     def modi_feed(self):
         item = self.tree_view.current_item()
-        item_category = item.type
-        item_data = item.user_data
+        item_category = self.tree_model.read_item(item, 'category')
+        item_data_id = self.tree_model.read_item(item, 'data_id')
         if item_category == 'feed':
-            dlg = FeedDialog(self, feed_id=item_data)
+            dlg = FeedDialog(self, feed_id=item_data_id)
             ok = dlg.exec_()
             if ok:
                 data = dlg.getData()

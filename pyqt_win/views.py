@@ -127,29 +127,6 @@ class TreeMenu(QTreeView):
         else:
             return None
 
-    def current_feed_ids(self):
-        """
-        get current tree menu feed ids
-        all-> id of all feeds
-        folder-> id of all feeds in folder
-        feed-> id of feed
-        :return: list of feed ids
-        """
-        feed_ids = []
-        item = self.current_item()
-        item_type = item.type
-        item_data = item.user_data
-        query = self.model().query
-        if item_type == 'feed':
-            feed_ids.append(item_data)
-        if item_type == 'folder':
-            rows = query.feed_rows(item_data)
-            feed_ids = [row.id for row in rows]
-        if item_type == 'command' and item_data == 'load_all_items':
-            rows = query.feed_rows()
-            feed_ids = [row.id for row in rows]
-        return feed_ids
-
 
 class ItemView(QTableView):
     current_changed = pyqtSignal(object, object)
