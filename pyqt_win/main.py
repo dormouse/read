@@ -231,20 +231,22 @@ class MainWindow(QMainWindow):
             dlg.destroy()
 
     def modi_folder(self):
-        item = self.tree_view.current_item()
-        item_category = item.type
-        item_data = item.user_data
-        item_text = item.text
-        if item_category == 'folder':
-            new_folder_name, ok = QInputDialog.getText(
-                self, "New Folder Name",
-                "New Folder Name:",
-                QLineEdit.Normal,
-                item_text)
-            if ok and new_folder_name != '':
-                self.query.modi_folder(item_data, new_folder_name)
-                self.query.save()
-                self.tree_view.load_from_database()
+        index = self.tree_view.currentIndex()
+        if index.isValid():
+            item = self.tree_model.index_to_item(index)
+            item_category = item.read('category')
+            item_title = item.read('title')
+        else:
+            return
+
+        if item_category != 'folder':
+            return
+
+        new_folder_name, ok = QInputDialog.getText(
+            self, "New Folder Name", "New Folder Name:",
+            QLineEdit.Normal, item_title)
+        if ok and new_folder_name and new_folder_name != item_title:
+            self.tree_model.modi_folder(item, new_folder_name)
 
     def about(self):
         QMessageBox.about(self, "About Rss Hole",

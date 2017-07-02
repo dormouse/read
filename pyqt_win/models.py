@@ -131,24 +131,60 @@ class TreeItem(object):
         return 0
 
     def set_value(self, **kwargs):
-        for k, v in kwargs.items():
-            setattr(self, k, v)
+        return any([self.write(k, v) for k, v in kwargs.items()])
+
+    def read_value(self, *args):
+        datas = [self.read(arg) for arg in args]
+        return dict(zip(args, datas))
+
+    def write(self, key, value):
+        old_value = self.read(key)
+        if old_value == value:
+            return False
+        else:
+            if key in ['node', 'node_link', 'data']:
+                setattr(self, key, value)
+                return True
+            if key in ['category', 'data_id', 'id']:
+                node = getattr(self, 'node', None)
+                if node:
+                    setattr(node, key, value)
+                    return True
+                else:
+                    return False
+            if key in ['title', ]:
+                node_link = getattr(self, 'node_link', None)
+                if node_link:
+                    setattr(node_link, key, value)
+                    return True
+                else:
+                    return False
+            if key in ['unread', ]:
+                data = getattr(self, 'data', None)
+                if data:
+                    data[key] = value
+                    return True
+                else:
+                    return False
+            return False
 
     def read(self, key):
+        if key in ['node', 'node_link', 'data']:
+            return getattr(self, key, None)
         if key in ['category', 'data_id', 'id']:
-            node = getattr(self, 'node')
+            node = getattr(self, 'node', None)
             if node:
                 return getattr(node, key, None)
             else:
                 return None
         if key in ['title', ]:
-            node_link = getattr(self, 'node_link')
+            node_link = getattr(self, 'node_link', None)
             if node_link:
                 return getattr(node_link, key, None)
             else:
                 return None
         if key in ['unread', ]:
-            data = getattr(self, 'data')
+            data = getattr(self, 'data', None)
             if data:
                 return data.get(key)
             else:
