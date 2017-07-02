@@ -169,13 +169,13 @@ class MainWindow(QMainWindow):
         curr_index = self.tree_view.currentIndex()
         if curr_index.isValid():
             item = curr_index.internalPointer()
-            item_category = self.tree_model.read_item(item, 'category')
+            item_category = item.read('category')
             if item_category == 'feed':
                 item = item.parent()
                 if item != self.tree_model.rootItem:
-                    folder_id = self.tree_model.read_item(item, 'data_id')
+                    folder_id = item.read('data_id')
             if item_category == 'folder':
-                folder_id = self.tree_model.read_item(item, 'data_id')
+                folder_id = item.read('data_id')
         wizard = AddFeedWizard(folder_id)
         wizard.setWindowTitle("Add Feed Wizard")
         wizard.show()
@@ -195,8 +195,8 @@ class MainWindow(QMainWindow):
         index = self.tree_view.currentIndex()
         if index.isValid():
             item = self.tree_model.index_to_item(index)
-            item_category = self.tree_model.read_item(item, 'category')
-            item_title = self.tree_model.read_item(item, 'title')
+            item_category = item.read('category')
+            item_title = item.read('title')
         else:
             return
 
@@ -207,7 +207,7 @@ class MainWindow(QMainWindow):
         reply = QMessageBox.question(
             self, "Confirm", msg, QMessageBox.Yes | QMessageBox.No)
         if reply == QMessageBox.Yes:
-            node_id = self.tree_model.read_item(item, 'id')
+            node_id = item.read('id')
             self.tree_model.removeRow(index.row(), index.parent())
             self.query.delete_node(node_id)
             self.tree_model.update_model_data()
@@ -218,8 +218,8 @@ class MainWindow(QMainWindow):
 
     def modi_feed(self):
         item = self.tree_view.current_item()
-        item_category = self.tree_model.read_item(item, 'category')
-        item_data_id = self.tree_model.read_item(item, 'data_id')
+        item_category = item.read('category')
+        item_data_id = item.read('data_id')
         if item_category == 'feed':
             dlg = FeedDialog(self, feed_id=item_data_id)
             ok = dlg.exec_()
@@ -498,7 +498,7 @@ class MainWindow(QMainWindow):
         """
         index = self.tree_view.currentIndex()
         item = self.tree_model.index_to_item(index)
-        node_id = self.tree_model.read_item(item, 'id')
+        node_id = item.read('id')
         self.item_list_view.model().reload(node_id)
 
     def show_item_content(self, index):
@@ -533,7 +533,7 @@ class MainWindow(QMainWindow):
         else:
             index = self.tree_view.currentIndex()
             item = self.tree_model.index_to_item(index)
-            node_id = self.tree_model.read_item(item, 'id')
+            node_id = item.read('id')
             data_changed = self.query.mark_read(node_id)
         if data_changed:
             self.tree_model.update_model_data()
@@ -585,11 +585,8 @@ class MainWindow(QMainWindow):
             if curr_index.isValid():
                 model = self.tree_model
                 item = model.index_to_item(curr_index)
-                msg = "node id:{}".format(
-                    model.read_item(item, 'id')
-                )
+                msg = "node id:{}".format(item.read('id'))
                 self.statusBar().showMessage(msg)
-
         self.load_items()
 
     def update_feeds_end(self):

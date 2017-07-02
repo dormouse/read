@@ -134,6 +134,27 @@ class TreeItem(object):
         for k, v in kwargs.items():
             setattr(self, k, v)
 
+    def read(self, key):
+        if key in ['category', 'data_id', 'id']:
+            node = getattr(self, 'node')
+            if node:
+                return getattr(node, key, None)
+            else:
+                return None
+        if key in ['title', ]:
+            node_link = getattr(self, 'node_link')
+            if node_link:
+                return getattr(node_link, key, None)
+            else:
+                return None
+        if key in ['unread', ]:
+            data = getattr(self, 'data')
+            if data:
+                return data.get(key)
+            else:
+                return None
+        return None
+
 
 class TreeModel(QAbstractItemModel):
     def __init__(self, parent=None):
@@ -170,7 +191,7 @@ class TreeModel(QAbstractItemModel):
             return self.unread_font if item.unread else self.read_font
 
         item_data_source_name = self.header_info[index.column()]
-        return self.read_item(item, item_data_source_name)
+        return item.read(item_data_source_name)
 
     def flags(self, index):
         if not index.isValid():
@@ -265,9 +286,9 @@ class TreeModel(QAbstractItemModel):
         items = [parent_item, ] + parent_item.children()
         ids = []
         for item in items:
-            category = self.read_item(item, 'category')
+            category = item.read('category')
             if category == 'feed':
-                ids.append(self.read_item(item, 'data_id'))
+                ids.append(item.read('data_id'))
         return ids
 
     def find_folder_item(self, folder_id):
@@ -354,7 +375,7 @@ class TreeModel(QAbstractItemModel):
         # write data to table of folder or feed
         data_id = self.query.add_data(category, **kwargs)
         # write data to table node
-        parent_id = self.read_item(parent_item, 'id')
+        parent_id = parent_item.read('id')
         kwargs = dict(
             parent_id=parent_id,
             category=category,
