@@ -245,8 +245,9 @@ class MainWindow(QMainWindow):
         new_folder_name, ok = QInputDialog.getText(
             self, "New Folder Name", "New Folder Name:",
             QLineEdit.Normal, item_title)
-        if ok and new_folder_name and new_folder_name != item_title:
-            self.tree_model.modi_folder(item, new_folder_name)
+        if ok and new_folder_name:
+            kwargs = dict(title=new_folder_name)
+            self.tree_model.modi_item_data(item, **kwargs)
 
     def about(self):
         QMessageBox.about(self, "About Rss Hole",

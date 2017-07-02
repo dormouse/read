@@ -467,11 +467,7 @@ class TreeModel(QAbstractItemModel):
             self.update_model_data(child)
 
     def modi_item_data(self, item, **node_row_value):
-        changed = False
-        for k, v in node_row_value.items():
-            if getattr(item, k, None) != v:
-                changed = True
-                setattr(item, k, v)
+        changed = item.set_value(**node_row_value)
         if changed:
             # emit signal
             parent_item = item.parent()
