@@ -210,7 +210,7 @@ class MainWindow(QMainWindow):
             node_id = item.read('id')
             self.tree_model.removeRow(index.row(), index.parent())
             self.query.delete_node(node_id)
-            self.tree_model.update_model_data()
+            self.tree_model.update_node_unread()
 
     def closeEvent(self, event):
         self.write_settings()
@@ -539,7 +539,7 @@ class MainWindow(QMainWindow):
             node_id = item.read('id')
             data_changed = self.query.mark_read(node_id)
         if data_changed:
-            self.tree_model.update_model_data()
+            self.tree_model.update_node_unread()
             self.load_items()
 
     def mark_item_read(self):
@@ -564,7 +564,7 @@ class MainWindow(QMainWindow):
         model.dataChanged.emit(top_left_index, bot_right_index)
 
         # update treeview
-        self.tree_model.update_model_data()
+        self.tree_model.update_node_unread()
 
     def make_debug_database(self):
         import shutil
@@ -594,7 +594,7 @@ class MainWindow(QMainWindow):
 
     def update_feeds_end(self):
         self.thread.quit()
-        self.tree_model.update_model_data()
+        self.tree_model.update_node_unread()
         self.load_items()
         self.statusBar().showMessage('Update done.')
 

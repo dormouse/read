@@ -457,14 +457,14 @@ class TreeModel(QAbstractItemModel):
             return item.data.get(key)
         return None
 
-    def update_model_data(self, parent_item=None):
+    def update_node_unread(self, parent_item=None):
         if not parent_item:
             parent_item = self.rootItem
 
         for child in parent_item.childItems:
             node_row_value = self.query.node_row_value(child.node)
-            self.modi_item_data(child, **node_row_value)
-            self.update_model_data(child)
+            self.modi_item_data(child, unread=node_row_value['data']['unread'])
+            self.update_node_unread(child)
 
     def modi_item_data(self, item, **node_row_value):
         changed = item.set_value(**node_row_value)
@@ -477,6 +477,7 @@ class TreeModel(QAbstractItemModel):
             top_left_index = self.index(row, 0, parent_index)
             bot_right_index = self.index(row, col_count - 1, parent_index)
             self.dataChanged.emit(top_left_index, bot_right_index)
+            self.query.save()
 
 
 if __name__ == '__main__':

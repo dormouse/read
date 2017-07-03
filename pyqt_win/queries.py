@@ -168,6 +168,7 @@ class QueryRss(object):
         value['data'] = dict(unread=unread)
         return value
 
+
     def node_items_query(self, node_id):
         """
 
